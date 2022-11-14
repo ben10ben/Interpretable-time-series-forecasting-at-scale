@@ -2,7 +2,5 @@
 
 Repo for colaborative work of
 
-Benedikt Rein
-Yulia
-Alican
+Benedikt Rein, Yulia and Alican
 
