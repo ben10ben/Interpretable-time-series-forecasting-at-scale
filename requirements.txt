@@ -1,0 +1,4 @@
+pytorch-forecasting
+pytorch-forecasting[mqf2]
+wget
+pyunpack
