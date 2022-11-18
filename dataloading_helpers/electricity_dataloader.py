@@ -14,17 +14,13 @@ csv_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.csv"
 
 
 """
-THIS SHOULD GO INTO SUBFOLDER "dataloading_helpers" AS A .py FILE
-
-prep_electricity_data copied from google paper:
+prep_electricity_data function copied from google paper:
 https://github.com/google-research/google-research/blob/master/tft/script_download_data.py
-
-whole cell is for the electricity dataset
 
 args:
   -txt_file: path to .txt document containg raw electricity dataset
       
-  -output_path: path to save prepared csv to
+  -output_path: path to save/load prepared csv to/from
 
 output: electricity_dataset_dict
   -training dataset
@@ -95,16 +91,10 @@ def create_timeseries_electricity():
 
     electricity_data['time_idx'] = electricity_data['time_idx'].astype('int')
 
-    electricity_data['categorical_day_of_week'] = electricity_data['categorical_day_of_week'].astype('string')
-    electricity_data['categorical_day_of_week'] = electricity_data['categorical_day_of_week'].astype('category')
-
-    electricity_data['categorical_hour'] = electricity_data['categorical_hour'].astype('string')
-    electricity_data['categorical_hour'] = electricity_data['categorical_hour'].astype('category')
-
+    electricity_data['categorical_day_of_week'] = electricity_data['categorical_day_of_week'].astype('string').astype('category')
+    electricity_data['categorical_hour'] = electricity_data['categorical_hour'].astype('string').astype('category')
     electricity_data['categorical_id'] = electricity_data['categorical_id'].astype('category')
-
-    electricity_data['month'] = electricity_data['month'].astype('string')
-    electricity_data['month'] = electricity_data['month'].astype('category')
+    electricity_data['month'] = electricity_data['month'].astype('string').astype('category')
   
     max_prediction_length = 24
     max_encoder_length = 168
