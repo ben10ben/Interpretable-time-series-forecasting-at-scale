@@ -1,6 +1,4 @@
 import pandas as pd
-import wget
-import pyunpack
 import numpy as np
 from pathlib import Path
 from config import *
@@ -81,7 +79,7 @@ def prep_electricity_data(txt_file):
     return output
 
 
-def create_timeseries_electricity():
+def create_electricity_timeseries():
 
     try:
         electricity_data = pd.read_csv(csv_file, index_col=0)    
