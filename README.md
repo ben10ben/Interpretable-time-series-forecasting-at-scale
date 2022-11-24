@@ -14,7 +14,7 @@ make sure you have the datasets in the coresponding data folders
 electricity dataset:
 https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
 
-retail dataset:
+retail dataset: https://www.kaggle.com/c/favorita-grocery-sales-forecasting/data?select=oil.csv.7z
 
 walmart dataset:
 
