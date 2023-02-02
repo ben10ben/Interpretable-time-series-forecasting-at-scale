@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import json
 import time
 
-from pytorch_lightning.loggers import CSVLogger
+from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
 #from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
