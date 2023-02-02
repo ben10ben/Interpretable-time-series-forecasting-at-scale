@@ -1,3 +1,5 @@
+print("Importing modules...")
+
 import sys
 import optuna
 import wget
@@ -34,6 +36,7 @@ from dataloading_helpers import electricity_dataloader
 from config import *
 
 
+print("Preparing dataset")
 # load dataset
 electricity = electricity_dataloader.create_electricity_timeseries_tft()
 timeseries_dict =  electricity
@@ -52,6 +55,7 @@ else:
     
     
 
+print("Defining model")
 # configure network and trainer
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
@@ -87,6 +91,7 @@ tft = TemporalFusionTransformer.from_dataset(
 print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
 
+print("Training model")
 # fit network
 trainer.fit(
     tft,
@@ -94,7 +99,7 @@ trainer.fit(
     val_dataloaders=timeseries_dict["val_dataloader"],
 )
 
-print("trainging done.")
+print("trainging done. Evaluating...")
 
 
 # evaluate
