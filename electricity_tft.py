@@ -15,6 +15,7 @@ import pyunpack
 import glob
 import gc
 import sklearn.preprocessing
+import json
 
 from pytorch_lightning.loggers import TensorBoardLogger
 from neuralprophet import NeuralProphet, set_log_level
@@ -103,3 +104,13 @@ best_tft = tft.load_from_checkpoint(best_model_path)
 actuals = torch.cat([y[0] for x, y in iter(timeseries_dict["val_dataloader"])])
 predictions = best_tft.predict(timeseries_dict["val_dataloader"])
 print("Best model MAE: ",(actuals - predictions).abs().mean().item())
+
+
+details = {'Name': "Bob",
+          'Age' :28}
+
+output_dict = {'model_path': best_model_path,
+               'MAE' : (actuals - predictions).abs().mean().item()}
+
+with open('output.txt', 'w') as convert_file:
+     convert_file.write(json.dumps(details))
