@@ -7,6 +7,7 @@ import tensorboard as tb
 import matplotlib.pyplot as plt
 import json
 import time
+from lightning.pytorch.accelerators import find_usable_cuda_devices
 
 from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
@@ -32,8 +33,8 @@ model_dir = CONFIG_DICT["models"][config_name_string]
 
 # if possible use GPU
 if torch.cuda.is_available():
-    accelerator = "gpu"
-    devices = torch.cuda.current_device()
+    accelerator = "cuda"
+    devices = find_usable_cuda_devices(2)
 else:
     accelerator = None
     devices = None
@@ -53,8 +54,8 @@ logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging resu
 trainer = pl.Trainer(
     default_root_dir=model_dir,
     max_epochs=5,
-    accelerator=accelerator,
     devices=devices,
+    accelerator=accelerator,
     enable_model_summary=True,
     gradient_clip_val=0.1,
     limit_train_batches=50, 
