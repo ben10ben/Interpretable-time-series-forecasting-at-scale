@@ -8,19 +8,20 @@ import matplotlib.pyplot as plt
 import json
 import time
 
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.loggers import CSVLogger
 #from neuralprophet import NeuralProphet, set_log_level
 #from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting.data.encoders import GroupNormalizer
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
+
 from torch import nn
 from dataloading_helpers import electricity_dataloader
 from config import *
 
 
-print("Preparing dataset")
+print("Preparing dataset") 
 # load dataset
 electricity = electricity_dataloader.create_electricity_timeseries_tft()
 timeseries_dict =  electricity
@@ -43,7 +44,10 @@ print("Defining model")
 # configure network and trainer
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
-logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+#logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+
+
+logger = CSVLogger(CONFIG_DICT["models"]["electricity"], name="electricity_logs")
 
 
 trainer = pl.Trainer(
