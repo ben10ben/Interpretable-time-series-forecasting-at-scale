@@ -1,13 +1,13 @@
+tensorflow
 pytorch-forecasting==0.9
 pytorch-forecasting[mqf2]
-pytorch-lightning==1.8.0
+lightning
+pytorch-lightning
 wget==3.2
 pyunpack==0.3
 neuralprophet[live]
 neuralprophet
-sys
 optuna
-tensorflow
 os
 pandas==1.4.4
 numpy==1.21.5

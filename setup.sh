@@ -1,4 +1,4 @@
-#virtualenv myenv
+virtualenv myenv
 mkdir data
 mkdir models
 mkdir lightning_logs
