@@ -20,9 +20,9 @@ import sklearn.preprocessing
 import json
 
 from pytorch_lightning.loggers import TensorBoardLogger
-from neuralprophet import NeuralProphet, set_log_level
+#from neuralprophet import NeuralProphet, set_log_level
 from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
-from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet, NHiTS, DeepAR
+from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting.data.examples import get_stallion_data
 from pytorch_forecasting.data.encoders import GroupNormalizer
