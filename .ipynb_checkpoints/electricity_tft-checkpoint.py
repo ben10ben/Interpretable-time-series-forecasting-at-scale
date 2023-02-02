@@ -3,7 +3,7 @@ print("Importing modules...")
 import torch
 import pytorch_lightning as pl
 #import tensorflow as tf
-#import tensorboard as tb
+import tensorboard as tb
 import matplotlib.pyplot as plt
 import json
 import time
@@ -38,16 +38,16 @@ else:
     accelerator = None
     devices = None
     
-print("Training on: ", devices) 
+print("Training on: ", accelerator, devices) 
 
 print("Defining model")
 # configure network and trainer
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
-#logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
 
 
-logger = CSVLogger(CONFIG_DICT["models"]["electricity"], name="electricity_logs")
+#logger = CSVLogger(CONFIG_DICT["models"]["electricity"], name="electricity_logs")
 
 
 trainer = pl.Trainer(
