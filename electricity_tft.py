@@ -53,13 +53,13 @@ else:
     accelerator = None
     devices = None
     
-    
+print("Training on: ", devices) 
 
 print("Defining model")
 # configure network and trainer
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
-logger = TensorBoardLogger(log_folder)  # logging results to a tensorboard
+logger = TensorBoardLogger(log_folder = CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
 
 
 trainer = pl.Trainer(
@@ -110,11 +110,10 @@ predictions = best_tft.predict(timeseries_dict["val_dataloader"])
 print("Best model MAE: ",(actuals - predictions).abs().mean().item())
 
 
-details = {'Name': "Bob",
-          'Age' :28}
 
 output_dict = {'model_path': best_model_path,
-               'MAE' : (actuals - predictions).abs().mean().item()}
+               'MAE'       : (actuals - predictions).abs().mean().item(),
+               'device'    : devices}
 
 with open('output.txt', 'w') as convert_file:
      convert_file.write(json.dumps(details))
