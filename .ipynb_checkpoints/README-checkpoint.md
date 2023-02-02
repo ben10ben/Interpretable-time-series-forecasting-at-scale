@@ -20,9 +20,3 @@ walmart dataset:
 
 stocks dataset: last 5 years
 https://finance.yahoo.com/quote/%5EGDAXI/history?period1=1510963200&period2=1668729600&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true
-
-
-
-
-
-

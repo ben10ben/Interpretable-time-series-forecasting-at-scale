@@ -35,6 +35,12 @@ from config import *
 
 
 
+wget "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip" -O temp.zip
+unzip temp.zip
+rm temp.zip
+
+
+
 # load dataset
 electricity = electricity_dataloader.create_electricity_timeseries_tft()
 timeseries_dict =  electricity
