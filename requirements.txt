@@ -1,7 +1,6 @@
 tensorflow
 pytorch-forecasting==0.9
 pytorch-forecasting[mqf2]
-lightning
 pytorch-lightning
 wget==3.2
 pyunpack==0.3
