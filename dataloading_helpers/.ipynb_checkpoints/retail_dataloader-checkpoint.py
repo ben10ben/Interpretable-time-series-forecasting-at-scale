@@ -3,11 +3,13 @@ import numpy as np
 from pathlib import Path
 from config import *
 from pytorch_forecasting import TimeSeriesDataSet
-from google_helpers import *
+from dataloading_helpers import google_helpers
 import sklearn.preprocessing
 import os
+import pyunpack
+import glob
 
-csv_file = CONFIG_DICT["datasets"]["stocks"] / "retail.csv"
+csv_file = CONFIG_DICT["datasets"]["retail"] / "retail.csv"
 
 
 DataTypes = google_helpers.DataTypes
@@ -346,14 +348,17 @@ def process_favorita():
     temporal.sort_values('unique_id', inplace=True)
 
     print('Saving processed file to {}'.format(CONFIG_DICT['datasets']['retail']))
-    temporal.to_csv(CONFIG_DICT['datasets']['retail'] / "favorita_csv")
+    temporal.to_csv(CONFIG_DICT['datasets']['retail'] / "retail")
     
     
 def create_retail_timeseries():
     try:
-        retail_data = pd.read_csv(csv_file, index_col=0)    
+        #retail_data = pd.read_csv(csv_file, index_col=0)   
+        retail_data = pd.read_csv(CONFIG_DICT["datasets"]["retail"] / "retail_small.csv", index_col=0)   
     except:
         process_favorita()
-        
-    retail_data = pd.read_csv(csv_file, index_col=0)    
+        retail_data = pd.read_csv(csv_file, index_col=0)    
+        retail_small = retail_data[:999999]
+        retail_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
+    
     return retail_data
