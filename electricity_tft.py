@@ -1,37 +1,21 @@
 print("Importing modules...")
 
-import sys
-import optuna
-import wget
-import os
-import pandas as pd
-import numpy as np
 import torch
 import pytorch_lightning as pl
-import pickle
 import tensorflow as tf
 import tensorboard as tb
-import time
 import matplotlib.pyplot as plt
-import pyunpack
-import glob
-import gc
-import sklearn.preprocessing
 import json
+import time
 
 from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
-from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
+#from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
-from pytorch_forecasting.data.examples import get_stallion_data
 from pytorch_forecasting.data.encoders import GroupNormalizer
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
-from pathlib import Path
-from pyunpack import Archive
 from torch import nn
-from datetime import timedelta
-
 from dataloading_helpers import electricity_dataloader
 from config import *
 
