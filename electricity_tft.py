@@ -7,7 +7,7 @@ import tensorboard as tb
 import matplotlib.pyplot as plt
 import json
 import time
-from pytorch_lightning.accelerators import CUDAAccelerator
+from pytorch_lightning.accelerators import *
 
 from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
