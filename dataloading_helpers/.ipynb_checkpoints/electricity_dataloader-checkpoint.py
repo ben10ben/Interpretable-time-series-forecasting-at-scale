@@ -117,7 +117,7 @@ def create_electricity_timeseries_tft():
           groups=["categorical_id", "id"], transformation="softplus"
       ),  # use softplus and normalize by group
       add_relative_time_idx=True,
-      add_target_scales=True,
+      add_target_scales=False,
       add_encoder_length=False, #
   )
 
@@ -178,7 +178,7 @@ def create_electricity_timeseries_nhits():
           groups=["categorical_id", "id"], transformation="softplus"
       ),  # use softplus and normalize by group
       add_relative_time_idx=False,
-      add_target_scales=True,
+      add_target_scales=False,
       add_encoder_length=False, #
   )
 
