@@ -54,7 +54,7 @@ logger
 trainer = pl.Trainer(
     default_root_dir=model_dir,
     max_epochs=5,
-    gpus=-1,
+    gpus=1,
     auto_select_gpus=True,
     #devices=devices,
     #accelerator=accelerator,
@@ -67,9 +67,9 @@ trainer = pl.Trainer(
     logger=logger,
 )
 
-cuda_instance = pl.accelerators.CUDAAccelerator()
+#cuda_instance = pl.accelerators.CUDAAccelerator()
 #cuda_instance = CUDAAccelerator()
-cuda_instance.setup(trainer)
+#cuda_instance.setup(trainer)
 
 
 tft = TemporalFusionTransformer.from_dataset(
