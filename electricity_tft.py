@@ -34,7 +34,7 @@ model_dir = CONFIG_DICT["models"][config_name_string]
 # if possible use GPU
 if torch.cuda.is_available():
     accelerator = "cuda"
-    devices = find_usable_cuda_devices(2)
+    devices = torch.cuda.current_device()
 else:
     accelerator = None
     devices = None
