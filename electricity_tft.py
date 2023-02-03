@@ -22,6 +22,10 @@ from dataloading_helpers import electricity_dataloader
 from config import *
 
 
+from pytorch_lightning.callbacks import DeviceStatsMonitor
+
+
+
 print("Preparing dataset") 
 # load dataset
 electricity = electricity_dataloader.create_electricity_timeseries_tft()
@@ -46,22 +50,24 @@ print("Defining model")
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
 logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+DeviceStatsMonitor = DeviceStatsMonitor()
 
 
 trainer = pl.Trainer(
     default_root_dir=model_dir,
     max_epochs=20,
-    gpus=1,
+    gpus=-1,
     auto_select_gpus=True,
     #devices=devices,
     #accelerator=accelerator,
     enable_model_summary=True,
     gradient_clip_val=0.1,
-    limit_train_batches=0.4, 
+    limit_train_batches=0.1, 
     fast_dev_run=False,  
-    callbacks=[lr_logger, early_stop_callback],
+    callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
     log_every_n_steps=5,
     logger=logger,
+    profiler="simple"
 )
 
 #cuda_instance = pl.accelerators.CUDAAccelerator()
@@ -71,11 +77,11 @@ trainer = pl.Trainer(
 
 tft = TemporalFusionTransformer.from_dataset(
     timeseries_dict["training_dataset"],
-    learning_rate=0.01,
-    hidden_size=64,
+    learning_rate=0.001,
+    hidden_size=160,
     attention_head_size=4,
     dropout=0.1,
-    hidden_continuous_size=64,
+    hidden_continuous_size=160,
     output_size= 3,  # 7 quantiles by default
     loss=QuantileLoss([0.1, 0.5, 0.9]),
     log_interval=5,
@@ -83,7 +89,7 @@ tft = TemporalFusionTransformer.from_dataset(
 )
 print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-timeseries_dict['val_dataloader'].to(devices)
+#timeseries_dict['val_dataloader'].to(devices)
 
 
 print("Training model")
