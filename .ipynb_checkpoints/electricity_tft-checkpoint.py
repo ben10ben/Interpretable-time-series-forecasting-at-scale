@@ -7,7 +7,7 @@ import tensorboard as tb
 import matplotlib.pyplot as plt
 import json
 import time
-from lightning.pytorch.accelerators import find_usable_cuda_devices
+from pytorch_lightning.accelerators import CUDAAccelerator
 
 from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
@@ -64,6 +64,11 @@ trainer = pl.Trainer(
     log_every_n_steps=1,
     logger=logger,
 )
+
+
+cuda_instance = CUDAAccelerator()
+cuda_instance.setup(trainer)
+
 
 tft = TemporalFusionTransformer.from_dataset(
     timeseries_dict["training_dataset"],
