@@ -33,7 +33,7 @@ model_dir = CONFIG_DICT["models"][config_name_string]
 
 # if possible use GPU
 if torch.cuda.is_available():
-    accelerator = "cuda"
+    accelerator = "auto"
     devices = torch.cuda.current_device()
 else:
     accelerator = None
@@ -65,8 +65,8 @@ trainer = pl.Trainer(
     logger=logger,
 )
 
-
-cuda_instance = CUDAAccelerator()
+cuda_instance = pl.accelerators.CUDAAccelerator()
+#cuda_instance = CUDAAccelerator()
 cuda_instance.setup(trainer)
 
 
