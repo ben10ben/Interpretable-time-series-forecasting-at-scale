@@ -46,7 +46,7 @@ print("Defining model")
 early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
 logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
-
+logger
 
 #logger = CSVLogger(CONFIG_DICT["models"]["electricity"], name="electricity_logs")
 
@@ -54,8 +54,10 @@ logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging resu
 trainer = pl.Trainer(
     default_root_dir=model_dir,
     max_epochs=5,
-    devices=devices,
-    accelerator=accelerator,
+    gpus=-1,
+    auto_select_gpu=True,
+    #devices=devices,
+    #accelerator=accelerator,
     enable_model_summary=True,
     gradient_clip_val=0.1,
     limit_train_batches=50, 
