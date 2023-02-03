@@ -1,16 +1,16 @@
 virtualenv myenv
-mkdir data
-mkdir models
-mkdir lightning_logs
-cd data
-mkdir electricity
-cd electricity
+#mkdir data
+#mkdir models
+#mkdir lightning_logs
+#cd data
+#mkdir electricity
+#cd electricity
 
-wget "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip" -O temp.zip
-unzip temp.zip
-rm temp.zip
-cd ..
-cd ..
+#wget "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip" -O temp.zip
+#unzip temp.zip
+#rm temp.zip
+#cd ..
+#cd ..
 
 source myenv/bin/activate
 
