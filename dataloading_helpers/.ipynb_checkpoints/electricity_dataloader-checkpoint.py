@@ -234,11 +234,11 @@ def create_electricity_timeseries_deepar():
     )
 
     validation = TimeSeriesDataSet.from_dataset(training, data, min_prediction_idx=training_cutoff + 1)
-    batch_size = 64
+    batch_size = 128
     # synchronize samples in each batch over time - only necessary for DeepVAR, not for DeepAR
-    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0, batch_sampler="synchronized")
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=20, batch_sampler="synchronized")
     
-    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0, batch_sampler="synchronized")
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=10, batch_sampler="synchronized")
     
     # output data as dict for easier modularity
     return {"training_dataset": training, 
