@@ -75,14 +75,14 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=True,
       gradient_clip_val=0.01,
-      limit_train_batches=100, 
+      limit_train_batches=20, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=2,
       logger=logger,
       profiler="simple",
-      ignore=['loss', 'logging_metrics']
-  )
+      strategy="ddp",
+    )
 
   #cuda_instance = pl.accelerators.CUDAAccelerator()
   #cuda_instance = CUDAAccelerator()
