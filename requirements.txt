@@ -1,4 +1,4 @@
-tensorflow
+#tensorflow
 pytorch-forecasting
 pytorch-forecasting[mqf2]
 pytorch-lightning
@@ -7,11 +7,11 @@ pyunpack
 neuralprophet[live]
 neuralprophet
 optuna
-os
+#os
 pandas
 numpy
 torch
-pickle
+#pickle
 tensorboard
 time
 matplotlib
