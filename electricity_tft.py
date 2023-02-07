@@ -1,10 +1,20 @@
+"""
+to find out:
+
+-is every epoch different data?
+-1 gpu = 4 its/sec
+-3 gpu = 2 its/sec
+
+bottelneck or thats how it is?
+
+"""
+
 if __name__ == '__main__': 
   print("Importing modules...")
 
   import torch
   import pytorch_lightning as pl
   import tensorboard as tb
-  import matplotlib.pyplot as plt
   import json
   import time
   from torch import nn
@@ -30,20 +40,19 @@ if __name__ == '__main__':
 
   
   print("Checking for device...")
-  # if possible use GPU
   if torch.cuda.is_available():
       accelerator = "cuda"
       devices = find_usable_cuda_devices(2)
   else:
       accelerator = None
-      devices = None
+      devices = 'cpu'
 
   print("Training mode ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-  lr_logger = LearningRateMonitor()  # log the learning rate
-  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+  lr_logger = LearningRateMonitor() 
+  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   DeviceStatsMonitor = DeviceStatsMonitor()
 
   trainer = pl.Trainer(
@@ -59,7 +68,7 @@ if __name__ == '__main__':
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      strategy="ddp",
+      strategy="ddp_find_unused_parameters_false",
     )
 
   print("Definining TFT...")
