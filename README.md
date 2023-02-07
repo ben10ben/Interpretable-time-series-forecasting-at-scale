@@ -21,7 +21,7 @@ Run the setup.sh scrit to:
 electricity dataset:
 https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
 
-retail dataset: https://www.kaggle.com/c/favorita-grocery-sales-forecasting/data?select=oil.csv.7z
+retail dataset: https://storage.googleapis.com/kaggle-competitions-data/kaggle-v2/7391/44328/bundle/archive.zip?GoogleAccessId=web-data@kaggle-161607.iam.gserviceaccount.com&Expires=1676046400&Signature=sErgEXSRVP6IRWbBu3Mmu68le1PSV2gv2lRR9Ys55tfQaxPVG4Bty0fHBIrTyhh95nZWyqxR%2Fo1pr13Y5jPum2zpB3QhgCDlW1HYLEcSTSxvpj%2FeAvhSTHMv%2ByvcFaA3sPeu1WSX7S6Y9lFQtM2%2BGeA9GCI%2Bf3lPXbghpGXRqfvhVJS5%2BGgUzIuq1GPwUAiFDmDOEPiWMxCbPavFSFfBILXbgU1PmjWsFcW9EMQNGMeATjg5tgw%2FrFUpiSCl3kquaUhzJJoJLwBnPzG2taAo%2BX8Fqm0tBBkHuZFxcFC29PXCxY4vhseA6wHbxiZI%2BTVVymqbFDv53k3%2BWgDkW%2Fe81g%3D%3D&response-content-disposition=attachment%3B+filename%3Dfavorita-grocery-sales-forecasting.zip
 
 
 

@@ -3,90 +3,64 @@ if __name__ == '__main__':
 
   import torch
   import pytorch_lightning as pl
-  #import tensorflow as tf
   import tensorboard as tb
   import matplotlib.pyplot as plt
   import json
   import time
+  from torch import nn
   from pytorch_lightning.accelerators import *
-  #import tensorflow as tf
-  #import tensorboard as tb
-  #tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
   from torch.utils.tensorboard import SummaryWriter
-
   from lightning.pytorch.accelerators import find_usable_cuda_devices
   from pytorch_lightning.loggers import TensorBoardLogger
-  #from neuralprophet import NeuralProphet, set_log_level
-  #from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
   from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
   from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
   from pytorch_forecasting.data.encoders import GroupNormalizer
-  from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
+  from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
 
-  from torch import nn
   from dataloading_helpers import electricity_dataloader
   from config import *
 
 
-  from pytorch_lightning.callbacks import DeviceStatsMonitor
-
-
-
   print("Preparing dataset...") 
-  # load dataset
   electricity = electricity_dataloader.create_electricity_timeseries_tft()
   timeseries_dict =  electricity
   config_name_string = "electricity"
   parameters = []
   model_dir = CONFIG_DICT["models"][config_name_string]
 
-
+  
   print("Checking for device...")
   # if possible use GPU
   if torch.cuda.is_available():
-      accelerator = "gpu"
-      devices = torch.cuda.current_device()
+      accelerator = "cuda"
+      devices = find_usable_cuda_devices(2)
   else:
       accelerator = None
       devices = None
 
+  print("Training mode ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
-  accelerator="cuda"
-  devices=find_usable_cuda_devices(2)
-
-  print("Training on Mode: ", accelerator, "Device: ", devices) 
-
-  print("Loading Trackers...")
-  # configure network and trainer
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
-
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
   lr_logger = LearningRateMonitor()  # log the learning rate
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
   DeviceStatsMonitor = DeviceStatsMonitor()
 
-  print("Defining Trainer...")
   trainer = pl.Trainer(
       default_root_dir=model_dir,
-      max_epochs=4,
-      #gpus=1,
-      #auto_select_gpus=True,
+      max_epochs=20,
       devices=devices,
       accelerator=accelerator,
-      enable_model_summary=True,
+      enable_model_summary=False,
       gradient_clip_val=0.01,
-      limit_train_batches=20, 
+      limit_train_batches=0.2, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
-      log_every_n_steps=2,
+      log_every_n_steps=5,
       logger=logger,
       profiler="simple",
       strategy="ddp",
     )
-
-  #cuda_instance = pl.accelerators.CUDAAccelerator()
-  #cuda_instance = CUDAAccelerator()
-  #cuda_instance.setup(trainer)
 
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
@@ -102,9 +76,6 @@ if __name__ == '__main__':
       reduce_on_plateau_patience=4,
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
-
-  #timeseries_dict['val_dataloader'].to(devices)
-
 
   print("Training model")
   # fit network
@@ -129,7 +100,8 @@ if __name__ == '__main__':
   output_dict = {
                 'model_path': best_model_path,
                 'MAE'       : (actuals - predictions).abs().mean().item(),
-                'device'    : devices
+                'device'    : devices,
+                'dataset'   : "electricity"
                 }
 
   with open('output.txt', 'w') as convert_file:

@@ -1,4 +1,5 @@
-conda create -n yourenvname python=3.9 anaconda#mkdir data
+conda create -n yourenvname python=3.9 anaconda
+#mkdir data
 #mkdir models
 #mkdir lightning_logs
 #cd data
