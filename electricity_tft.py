@@ -13,7 +13,7 @@ from pytorch_lightning.accelerators import *
 #tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 from torch.utils.tensorboard import SummaryWriter
 
-
+from lightning.pytorch.accelerators import find_usable_cuda_devices
 from pytorch_lightning.loggers import TensorBoardLogger
 #from neuralprophet import NeuralProphet, set_log_level
 #from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
@@ -49,6 +49,10 @@ else:
     accelerator = None
     devices = None
     
+    
+accelerator="cuda"
+devices=find_usable_cuda_devices(2)
+    
 print("Training on Mode: ", accelerator, "Device: ", devices) 
 
 print("Loading Trackers...")
@@ -64,9 +68,9 @@ print("Defining Trainer...")
 trainer = pl.Trainer(
     default_root_dir=model_dir,
     max_epochs=4,
-    gpus=1,
+    #gpus=1,
     #auto_select_gpus=True,
-    #devices=devices,
+    devices=devices,
     accelerator=accelerator,
     enable_model_summary=True,
     gradient_clip_val=0.01,
@@ -112,17 +116,21 @@ print("trainging done. Evaluating...")
 
 
 ## evaluate
-#best_model_path = trainer.checkpoint_callback.best_model_path
-#best_tft = tft.load_from_checkpoint(best_model_path)
-#actuals = torch.cat([y[0] for x, y in iter(timeseries_dict["val_dataloader"])])
-#predictions = best_tft.predict(timeseries_dict["val_dataloader"])
-#print("Best model MAE: ",(actuals - predictions).abs().mean().item())
+best_model_path = trainer.checkpoint_callback.best_model_path
+best_tft = tft.load_from_checkpoint(best_model_path)
+actuals = torch.cat([y[0] for x, y in iter(timeseries_dict["val_dataloader"])])
+predictions = best_tft.predict(timeseries_dict["val_dataloader"])
+print("Best model MAE: ",(actuals - predictions).abs().mean().item())
 
 
 
-#output_dict = {'model_path': best_model_path,
-#               'MAE'       : (actuals - predictions).abs().mean().item(),
-#               'device'    : devices}
+output_dict = {
+              'model_path': best_model_path,
+              'MAE'       : (actuals - predictions).abs().mean().item(),
+              'device'    : devices
+              }
 
-#with open('output.txt', 'w') as convert_file:
-#     convert_file.write(json.dumps(details))
+with open('output.txt', 'w') as convert_file:
+     convert_file.write(json.dumps(output_dict))
+    
+print("Done.")
