@@ -27,8 +27,9 @@ if __name__ == '__main__':
   from pytorch_forecasting.data.encoders import GroupNormalizer
   from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
 
-  from pytorch_lightning.strategies.ddp import DDPStrategy  
-  from torch.nn.parallel import DistributedDataParallel as DDP
+  from torch.optim import Adam
+  from torch.optim.lr_scheduler import ReduceLROnPlateau
+  
   from dataloading_helpers import electricity_dataloader
   from config import *
 
@@ -44,7 +45,7 @@ if __name__ == '__main__':
   print("Checking for device...")
   if torch.cuda.is_available():
       accelerator = "gpu"
-      devices = find_usable_cuda_devices(2)
+      devices = find_usable_cuda_devices(1)
   else:
       accelerator = None
       devices = 'cpu'
@@ -64,7 +65,7 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=False,
       gradient_clip_val=0.01,
-      limit_train_batches=0.1, 
+      limit_train_batches=0.02, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=5,
@@ -77,7 +78,7 @@ if __name__ == '__main__':
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.01,
+      learning_rate=0.1,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
@@ -89,15 +90,9 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-  lr_finder = trainer.tuner.lr_find(tft)
-  # Results can be found in
-  print(lr_finder.results)
-
-  # Plot with
-  fig = lr_finder.plot(suggest=True)
-  fig.show()
-  
-  #trainer.tune(tft)
+  trainer.optimizer = Adam(tft.parameters(), lr=0.1, patience=2)
+  scheduler = ReduceLROnPlateau(trainer.optimizer)
+  print(trainer.optimizer)
   
   print("Training model")
   # fit network
