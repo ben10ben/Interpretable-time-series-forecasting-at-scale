@@ -70,8 +70,8 @@ if __name__ == '__main__':
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      #strategy= DDPStrategy(find_unused_parameters=False),
-      strategy="ddp",
+      reload_dataloaders_every_n_epochs=1, 
+      auto_lr_find=True,
     )
 
   print("Definining TFT...")
@@ -89,6 +89,9 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
+  
+  trainer.tune(tft)
+  
   print("Training model")
   # fit network
   trainer.fit(
@@ -120,3 +123,6 @@ if __name__ == '__main__':
        convert_file.write(json.dumps(output_dict))
 
   print("Done.")
+    
+  #trainer.fit(ckpt_path="some/path/to/my_checkpoint.ckpt")
+   # trainer = Trainer(resume_from_checkpoint="some/path/to/my_checkpoint.ckpt")
