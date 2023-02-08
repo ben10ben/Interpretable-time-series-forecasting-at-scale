@@ -1,10 +1,20 @@
+"""
+to find out:
+
+-is every epoch different data?
+-1 gpu = 4 its/sec
+-3 gpu = 2 its/sec
+
+bottelneck or thats how it is?
+
+"""
+
 if __name__ == '__main__': 
   print("Importing modules...")
 
   import torch
   import pytorch_lightning as pl
   import tensorboard as tb
-  import matplotlib.pyplot as plt
   import json
   import time
   from torch import nn
@@ -17,6 +27,7 @@ if __name__ == '__main__':
   from pytorch_forecasting.data.encoders import GroupNormalizer
   from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
 
+  from pytorch_lightning.strategies.ddp import DDPStrategy  
   from dataloading_helpers import electricity_dataloader
   from config import *
 
@@ -30,20 +41,19 @@ if __name__ == '__main__':
 
   
   print("Checking for device...")
-  # if possible use GPU
   if torch.cuda.is_available():
       accelerator = "cuda"
       devices = find_usable_cuda_devices(2)
   else:
       accelerator = None
-      devices = None
+      devices = 'cpu'
 
   print("Training mode ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-  lr_logger = LearningRateMonitor()  # log the learning rate
-  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"])  # logging results to a tensorboard
+  lr_logger = LearningRateMonitor() 
+  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   DeviceStatsMonitor = DeviceStatsMonitor()
 
   trainer = pl.Trainer(
@@ -53,19 +63,19 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=False,
       gradient_clip_val=0.01,
-      limit_train_batches=0.2, 
+      limit_train_batches=0.1, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      strategy="ddp",
+      strategy= DDPStrategy(find_unused_parameters=False),
     )
 
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.001,
+      learning_rate=0.01,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,

@@ -27,6 +27,7 @@ if __name__ == '__main__':
   from pytorch_forecasting.data.encoders import GroupNormalizer
   from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
 
+  from pytorch_lightning.strategies.ddp import DDPStrategy  
   from dataloading_helpers import electricity_dataloader
   from config import *
 
@@ -62,19 +63,19 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=False,
       gradient_clip_val=0.01,
-      limit_train_batches=0.2, 
+      limit_train_batches=0.1, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      strategy="ddp_find_unused_parameters_false",
+      strategy= DDPStrategy(find_unused_parameters=False),
     )
 
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.001,
+      learning_rate=0.01,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
