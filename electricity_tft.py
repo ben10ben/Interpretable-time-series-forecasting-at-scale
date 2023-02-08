@@ -89,8 +89,15 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
+  lr_finder = trainer.tuner.lr_find(tft)
+  # Results can be found in
+  print(lr_finder.results)
+
+  # Plot with
+  fig = lr_finder.plot(suggest=True)
+  fig.show()
   
-  trainer.tune(tft)
+  #trainer.tune(tft)
   
   print("Training model")
   # fit network
