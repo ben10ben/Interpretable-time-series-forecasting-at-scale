@@ -28,6 +28,7 @@ if __name__ == '__main__':
   from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
 
   from pytorch_lightning.strategies.ddp import DDPStrategy  
+  from torch.nn.parallel import DistributedDataParallel as DDP
   from dataloading_helpers import electricity_dataloader
   from config import *
 
@@ -42,7 +43,7 @@ if __name__ == '__main__':
   
   print("Checking for device...")
   if torch.cuda.is_available():
-      accelerator = "cuda"
+      accelerator = "gpu"
       devices = find_usable_cuda_devices(2)
   else:
       accelerator = None
@@ -69,7 +70,9 @@ if __name__ == '__main__':
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      strategy= DDPStrategy(find_unused_parameters=False),
+      #strategy= DDPStrategy(find_unused_parameters=False),
+      #strategy="ddp",
+      strategy=DDP(find_unused_parameters=False
     )
 
   print("Definining TFT...")

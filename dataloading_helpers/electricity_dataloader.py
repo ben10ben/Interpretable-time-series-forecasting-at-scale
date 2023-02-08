@@ -128,7 +128,7 @@ def create_electricity_timeseries_tft():
   # create dataloaders for model
     batch_size = 64  # set this between 32 to 128
     train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=35, pin_memory=True)
-    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 20, num_workers=10, pin_memory=True)
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 20, num_workers=10, pin_memory=Trues)
 
 
 # output data as dict for easier modularity
