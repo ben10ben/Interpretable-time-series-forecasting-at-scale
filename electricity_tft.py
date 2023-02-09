@@ -95,9 +95,12 @@ if __name__ == '__main__':
   print(trainer.optimizer)
   
   
-  lightning_optimizer = trainer.optimizer()  
-  for param_group in lightning_optimizer.optimizer.param_groups:
-      print(param_group['lr'])
+  lightning_optimizer = trainer.optimizer
+  for param_groups in lightning_optimizer.param_groups:
+    print(param_groups['lr'])
+  
+  
+  Optimizer.load_state_dict(state_dict)
   
   print("Training model")
   # fit network
