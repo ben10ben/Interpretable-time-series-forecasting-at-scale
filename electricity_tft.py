@@ -65,27 +65,26 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=True,
       gradient_clip_val=0.01,
-      limit_train_batches=0.1, 
+      limit_train_batches=0.05, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=5,
       logger=logger,
       profiler="simple",
-      reload_dataloaders_every_n_epochs=1, 
-      auto_lr_find=True,
+      reload_dataloaders_every_n_epochs=1,
     )
 
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
       learning_rate=0.1,
-      hidden_size=160,
+      hidden_size=80,
       attention_head_size=4,
       dropout=0.1,
-      hidden_continuous_size=80,
+      hidden_continuous_size=40,
       output_size= 3,  # 7 quantiles by default
       loss=QuantileLoss([0.1, 0.5, 0.9]),
-      log_interval=40,
+      log_interval=1,
       reduce_on_plateau_patience=4,
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
