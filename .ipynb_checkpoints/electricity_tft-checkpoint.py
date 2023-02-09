@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-  lr_logger = LearningRateMonitor(logging_interval='step') 
+  lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   DeviceStatsMonitor = DeviceStatsMonitor()
 
@@ -90,9 +90,14 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-  trainer.optimizer = Adam(tft.parameters(), lr=0.1, patience=2)
+  trainer.optimizer = Adam(tft.parameters(), lr=0.1)
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.1)
   print(trainer.optimizer)
+  
+  
+  lightning_optimizer = trainer.optimizers()  
+    for param_group in lightning_optimizer.optimizer.param_groups:
+        print(param_group['lr'])
   
   print("Training model")
   # fit network
