@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-  lr_logger = LearningRateMonitor() 
+  lr_logger = LearningRateMonitor(logging_interval='step') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   DeviceStatsMonitor = DeviceStatsMonitor()
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=False,
       gradient_clip_val=0.01,
-      limit_train_batches=0.02, 
+      limit_train_batches=0.1, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
       log_every_n_steps=5,
@@ -91,7 +91,7 @@ if __name__ == '__main__':
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
   trainer.optimizer = Adam(tft.parameters(), lr=0.1, patience=2)
-  scheduler = ReduceLROnPlateau(trainer.optimizer)
+  scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.1)
   print(trainer.optimizer)
   
   print("Training model")
