@@ -99,9 +99,6 @@ if __name__ == '__main__':
   for param_groups in lightning_optimizer.param_groups:
     print(param_groups['lr'])
   
-  
-  Optimizer.load_state_dict(state_dict)
-  
   print("Training model")
   # fit network
   trainer.fit(
@@ -109,7 +106,11 @@ if __name__ == '__main__':
       train_dataloaders=timeseries_dict["train_dataloader"],
       val_dataloaders=timeseries_dict["val_dataloader"],
   )
+  optimizer_state = trainer.optimizer.state_dict()
 
+  with open('optimizer_state.txt', 'w') as convert_file:
+       convert_file.write(json.dumps(optimizer_state))
+      
   print("trainging done. Evaluating...")
 
 
