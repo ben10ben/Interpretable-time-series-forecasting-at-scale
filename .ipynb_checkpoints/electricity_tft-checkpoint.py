@@ -63,7 +63,7 @@ if __name__ == '__main__':
       max_epochs=20,
       devices=devices,
       accelerator=accelerator,
-      enable_model_summary=False,
+      enable_model_summary=True,
       gradient_clip_val=0.01,
       limit_train_batches=0.1, 
       fast_dev_run=False,  
@@ -96,8 +96,8 @@ if __name__ == '__main__':
   
   
   lightning_optimizer = trainer.optimizer()  
-    for param_group in lightning_optimizer.optimizer.param_groups:
-        print(param_group['lr'])
+  for param_group in lightning_optimizer.optimizer.param_groups:
+      print(param_group['lr'])
   
   print("Training model")
   # fit network
