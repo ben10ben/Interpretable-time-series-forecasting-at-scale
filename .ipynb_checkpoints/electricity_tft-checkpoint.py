@@ -95,7 +95,7 @@ if __name__ == '__main__':
   print(trainer.optimizer)
   
   
-  lightning_optimizer = trainer.optimizers()  
+  lightning_optimizer = trainer.optimizer()  
     for param_group in lightning_optimizer.optimizer.param_groups:
         print(param_group['lr'])
   
