@@ -56,48 +56,46 @@ if __name__ == '__main__':
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
-  DeviceStatsMonitor = DeviceStatsMonitor()
+  #DeviceStatsMonitor = DeviceStatsMonitor()
 
   trainer = pl.Trainer(
       default_root_dir=model_dir,
-      max_epochs=20,
+      max_epochs=10,
       devices=devices,
       accelerator=accelerator,
       enable_model_summary=True,
       gradient_clip_val=0.01,
-      limit_train_batches=0.05, 
+      #limit_train_batches=0.05, 
       fast_dev_run=False,  
-      callbacks=[lr_logger, early_stop_callback, DeviceStatsMonitor],
-      log_every_n_steps=5,
+      callbacks=[lr_logger, early_stop_callback]#, DeviceStatsMonitor],
+      log_every_n_steps=1,
       logger=logger,
       profiler="simple",
-      reload_dataloaders_every_n_epochs=1,
+      #reload_dataloaders_every_n_epochs=1,
     )
 
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
       learning_rate=0.1,
-      hidden_size=80,
+      hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
-      hidden_continuous_size=40,
+      hidden_continuous_size=80,
       output_size= 3,  # 7 quantiles by default
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
-      reduce_on_plateau_patience=4,
+      reduce_on_plateau_patience=2,
+      optimizer="adam"
+
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
   trainer.optimizer = Adam(tft.parameters(), lr=0.1)
-  scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.1)
-  print(trainer.optimizer)
+  scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)
+  #print(trainer.optimizer)
   
-  
-  lightning_optimizer = trainer.optimizer
-  for param_groups in lightning_optimizer.param_groups:
-    print(param_groups['lr'])
-  
+   
   print("Training model")
   # fit network
   trainer.fit(
@@ -105,10 +103,13 @@ if __name__ == '__main__':
       train_dataloaders=timeseries_dict["train_dataloader"],
       val_dataloaders=timeseries_dict["val_dataloader"],
   )
-  optimizer_state = trainer.optimizer.state_dict()
+  #optimizer_state = trainer.optimizer.state_dict()
 
-  with open('optimizer_state.txt', 'w') as convert_file:
-       convert_file.write(json.dumps(optimizer_state))
+  try:
+      with open('optimizer_state.txt', 'w') as convert_file:
+          convert_file.write(json.dumps(optimizer_state))
+  except:
+      print("Could not safe optimizer.")
       
   print("trainging done. Evaluating...")
 
@@ -126,7 +127,9 @@ if __name__ == '__main__':
                 'model_path': best_model_path,
                 'MAE'       : (actuals - predictions).abs().mean().item(),
                 'device'    : devices,
-                'dataset'   : "electricity"
+                'dataset'   : "electricity",
+                'actuals'   : actuals,
+                'prediction': predictions
                 }
 
   with open('output.txt', 'w') as convert_file:
