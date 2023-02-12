@@ -77,7 +77,7 @@ if __name__ == '__main__':
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.1,
+      learning_rate=0.005,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
@@ -91,7 +91,7 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-  trainer.optimizer = Adam(tft.parameters(), lr=0.1)
+  trainer.optimizer = Adam(tft.parameters(), lr=0.005)
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)
   #print(trainer.optimizer)
   
