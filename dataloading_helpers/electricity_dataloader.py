@@ -127,7 +127,7 @@ def create_electricity_timeseries_tft():
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
       target_normalizer=GroupNormalizer(
-          groups=["categorical_id"], transformation="softplus"
+          groups=["id"], transformation="softplus"
       ),  # use softplus and normalize by group
       add_relative_time_idx=True,
       add_target_scales=True,
