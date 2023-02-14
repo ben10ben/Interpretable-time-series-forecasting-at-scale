@@ -67,7 +67,7 @@ if __name__ == '__main__':
       gradient_clip_val=0.01,
       #limit_train_batches=0.05, 
       fast_dev_run=False,  
-      callbacks=[lr_logger, early_stop_callback]#, DeviceStatsMonitor],
+      callbacks=[lr_logger, early_stop_callback],#, DeviceStatsMonitor],
       log_every_n_steps=1,
       logger=logger,
       profiler="simple",
