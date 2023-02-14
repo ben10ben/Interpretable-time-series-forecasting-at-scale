@@ -67,8 +67,8 @@ def prep_electricity_data(txt_file):
 
     output['categorical_id'] = output['id'].copy()
     output['hours_from_start'] = output['time_idx']
-    output['categorical_day_of_week'] = output['day_of_week'].copy()
-    output['categorical_hour'] = output['hour'].copy()
+    #output['categorical_day_of_week'] = output['day_of_week'].copy()
+    #output['categorical_hour'] = output['hour'].copy()
 
     # Filter to match range used by other academic papers
     output = output[(output['days_from_start'] >= 1096)
@@ -79,7 +79,17 @@ def prep_electricity_data(txt_file):
 
 
 def create_electricity_timeseries_tft():
+    """  
+      #('id', DataTypes.REAL_VALUED, InputTypes.ID),
+      #('hours_from_start', DataTypes.REAL_VALUED, InputTypes.TIME),
+      #('power_usage', DataTypes.REAL_VALUED, InputTypes.TARGET),
+      ('hour', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+      ('day_of_week', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+      #('hours_from_start', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+      #('categorical_id', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
 
+    """
+    
     try:
         electricity_data = pd.read_csv(csv_file, index_col=0)    
     except:
@@ -88,15 +98,47 @@ def create_electricity_timeseries_tft():
 
     electricity_data['time_idx'] = electricity_data['time_idx'].astype('int')
 
-    electricity_data['categorical_day_of_week'] = electricity_data['categorical_day_of_week'].astype('string').astype('category')
-    electricity_data['categorical_hour'] = electricity_data['categorical_hour'].astype('string').astype('category')
+    #electricity_data['categorical_day_of_week'] = electricity_data['categorical_day_of_week'].astype('string').astype('category')
+    #electricity_data['categorical_hour'] = electricity_data['categorical_hour'].astype('string').astype('category')
     electricity_data['categorical_id'] = electricity_data['categorical_id'].astype('category')
-    electricity_data['month'] = electricity_data['month'].astype('string').astype('category')
+    #electricity_data['month'] = electricity_data['month'].astype('string').astype('category')
   
     max_prediction_length = 24
     max_encoder_length = 168
     training_cutoff = electricity_data["time_idx"].max() - max_prediction_length
 
+    electricity_data.info()
+    electricity_data.head()
+    
+    training = TimeSeriesDataSet(
+      electricity_data[lambda x: x.time_idx <= training_cutoff],
+      time_idx="time_idx",
+      target="power_usage",
+      group_ids=["id"],
+      min_encoder_length=max_encoder_length,# // 2,  # keep encoder length long (as it is in the validation set)
+      max_encoder_length=max_encoder_length,
+      min_prediction_length=max_prediction_length,
+      max_prediction_length=max_prediction_length,
+      static_categoricals=["categorical_id"],
+      static_reals=[],
+      time_varying_known_categoricals=[],
+      #variable_groups={"special_days": special_days},  # group of categorical variables can be treated as one variable
+      time_varying_known_reals=["time_idx", "hour", "day_of_week"],
+      time_varying_unknown_categoricals=[],
+      time_varying_unknown_reals=[],
+      target_normalizer=GroupNormalizer(
+          groups=[], transformation="softplus"
+      ),  # use softplus and normalize by group
+      add_relative_time_idx=True,
+      add_target_scales=False,
+      add_encoder_length=False, #
+    )
+    
+    
+    """
+    old timeseries dataset definition:
+    
+    
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
       time_idx="time_idx",
@@ -119,7 +161,8 @@ def create_electricity_timeseries_tft():
       add_relative_time_idx=True,
       add_target_scales=False,
       add_encoder_length=False, #
-  )
+    )
+    """
 
   # create validation set (predict=True) which means to predict the last max_prediction_length points in time
   # for each series

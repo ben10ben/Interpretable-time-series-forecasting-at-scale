@@ -1,3 +1,6 @@
+#use this or connecting to hu servers: ssh -l reinbene@hu-berlin.de gruenau2.informatik.hu-berlin.de
+#                                             yuliabcd@
+
 import neuralprophet
 import sys
 import optuna
