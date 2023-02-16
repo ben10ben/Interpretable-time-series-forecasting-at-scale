@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from config import *
 from pytorch_forecasting import TimeSeriesDataSet
-from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer
+from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer, EncoderNormalizer
 from sklearn.preprocessing import StandardScaler
 
 # set path in config.py
@@ -143,7 +143,7 @@ def create_electricity_timeseries_tft():
       time_varying_known_reals=["time_idx", "hour", "day_of_week"],
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
-      target_normalizer=GroupNormalizer(groups=["power_usage", "hour", "day_of_week", "time_idx"], scale_by_group=True),
+      target_normalizer=EncoderNormalizer(),#(groups=["power_usage", "hour", "day_of_week", "time_idx"]),
       #target_normalizer=GroupNormalizer(groups=["categorical_id"])
       add_relative_time_idx=False,
       add_target_scales=True,
