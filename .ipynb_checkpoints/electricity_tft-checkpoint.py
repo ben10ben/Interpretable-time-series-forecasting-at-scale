@@ -102,6 +102,7 @@ if __name__ == '__main__':
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
       val_dataloaders=timeseries_dict["val_dataloader"],
+      #"~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
   #optimizer_state = trainer.optimizer.state_dict()
 

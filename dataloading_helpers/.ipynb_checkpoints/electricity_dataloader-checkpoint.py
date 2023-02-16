@@ -80,6 +80,8 @@ def prep_electricity_data(txt_file):
 
 def create_electricity_timeseries_tft():
     """  
+    Google input definitions:
+    
       #('id', DataTypes.REAL_VALUED, InputTypes.ID),
       #('hours_from_start', DataTypes.REAL_VALUED, InputTypes.TIME),
       #('power_usage', DataTypes.REAL_VALUED, InputTypes.TARGET),
@@ -107,8 +109,14 @@ def create_electricity_timeseries_tft():
     max_encoder_length = 168
     training_cutoff = electricity_data["time_idx"].max() - max_prediction_length
 
-    electricity_data.info()
-    electricity_data.head()
+    # NOT USED
+    # split data like google
+    #index = df['days_from_start']
+    #train = df.loc[index < valid_boundary]
+    #valid = df.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
+    #test = df.loc[index >= test_boundary - 7]
+    
+    
     
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
@@ -127,9 +135,9 @@ def create_electricity_timeseries_tft():
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
       target_normalizer=GroupNormalizer(
-          groups=["id"], transformation="softplus"
+          groups=["power_usage"], transformation=None
       ),  # use softplus and normalize by group
-      add_relative_time_idx=True,
+      add_relative_time_idx=False,
       add_target_scales=True,
       add_encoder_length=False, #
     )
