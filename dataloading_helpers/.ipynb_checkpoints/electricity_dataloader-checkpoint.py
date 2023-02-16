@@ -3,7 +3,8 @@ import numpy as np
 from pathlib import Path
 from config import *
 from pytorch_forecasting import TimeSeriesDataSet
-from pytorch_forecasting.data.encoders import GroupNormalizer
+from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer
+
 
 # set path in config.py
 txt_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.txt"
@@ -134,9 +135,7 @@ def create_electricity_timeseries_tft():
       time_varying_known_reals=["time_idx", "hour", "day_of_week"],
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
-      target_normalizer=GroupNormalizer(
-          groups=["power_usage"], transformation=None
-      ),  # use softplus and normalize by group
+      target_normalizer=TorchNormalizer(),  # use softplus and normalize by group
       add_relative_time_idx=False,
       add_target_scales=True,
       add_encoder_length=False, #
