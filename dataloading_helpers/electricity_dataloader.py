@@ -4,7 +4,7 @@ from pathlib import Path
 from config import *
 from pytorch_forecasting import TimeSeriesDataSet
 from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer
-
+from sklearn.preprocessing import StandardScaler
 
 # set path in config.py
 txt_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.txt"
@@ -120,6 +120,8 @@ def create_electricity_timeseries_tft():
     target_normalizer = TorchNormalizer()
     electricity_data["power_usage"] = target_normalizer.fit_transform(electricity_data["power_usage"])
     print(electricity_data["power_usage"].mean())
+    
+    electricity_data["power_usage"] = StandardScaler.fit_transform(electricity_data["power_usage"])
     
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
