@@ -117,11 +117,12 @@ def create_electricity_timeseries_tft():
     #valid = df.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
     #test = df.loc[index >= test_boundary - 7]
     print(electricity_data["power_usage"].mean())
-    target_normalizer = TorchNormalizer()
-    electricity_data["power_usage"] = target_normalizer.fit_transform(electricity_data["power_usage"])
-    print(electricity_data["power_usage"].mean())
+    #target_normalizer = TorchNormalizer()
+    #electricity_data["power_usage"] = target_normalizer.fit_transform(electricity_data["power_usage"])
+    #print(electricity_data["power_usage"].mean())
     
     electricity_data["power_usage"] = StandardScaler.fit_transform(electricity_data["power_usage"])
+    print(electricity_data["power_usage"].mean())
     
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
