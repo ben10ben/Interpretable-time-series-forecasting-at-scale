@@ -116,9 +116,10 @@ def create_electricity_timeseries_tft():
     #train = df.loc[index < valid_boundary]
     #valid = df.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
     #test = df.loc[index >= test_boundary - 7]
+    print(electricity_data["power_usage"].mean())
     target_normalizer = TorchNormalizer()
-    target_normalizer.fit(electricity_data["power_usage"])
-    
+    electricity_data["power_usage"] = target_normalizer.fit_transform(electricity_data["power_usage"])
+    print(electricity_data["power_usage"].mean())
     
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
@@ -136,7 +137,7 @@ def create_electricity_timeseries_tft():
       time_varying_known_reals=["time_idx", "hour", "day_of_week"],
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
-      target_normalizer=target_normalizer,  # use softplus and normalize by group
+      #target_normalizer=target_normalizer,  # use softplus and normalize by group
       add_relative_time_idx=False,
       add_target_scales=False,
       add_encoder_length=False, #
