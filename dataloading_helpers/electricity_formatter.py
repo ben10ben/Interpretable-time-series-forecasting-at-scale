@@ -1,6 +1,6 @@
 from dataloading_helpers import utils, base
 import pandas as pd
-import sklearn.preprocessing
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 GenericDataFormatter = base.GenericDataFormatter
 DataTypes = base.DataTypes
@@ -20,24 +20,23 @@ class ElectricityFormatter(GenericDataFormatter):
   _column_definition = [
       ('id', DataTypes.REAL_VALUED, InputTypes.ID),
       ('hours_from_start', DataTypes.REAL_VALUED, InputTypes.TIME),
+
+    
+    
+      ('categorical_id', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
+    
       ('power_usage', DataTypes.REAL_VALUED, InputTypes.TARGET),
       ('hour', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
       ('day_of_week', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
       ('hours_from_start', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-      ('categorical_id', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
   ]
 
-  def __init__(self):
-    """Initialises formatter."""
+    #static = ["categorical_id"]
+    #numeric = ["power_usage", "hour", "day_of_week", "hours_from_start"]
+    #categorical = ["categorical_id"]
+  
 
-    self.identifiers = None
-    self._real_scalers = None
-    self._cat_scalers = None
-    self._target_scaler = None
-    self._num_classes_per_cat_input = None
-    self._time_steps = self.get_fixed_params()['total_time_steps']
-
-  def split_data(self, df, valid_boundary=1315, test_boundary=1339):
+  def split_data(df, valid_boundary=1315, test_boundary=1339):
     """Splits data frame into training-validation-test data frames.
     This also calibrates scaling object, and transforms data for each split.
     Args:
@@ -55,22 +54,15 @@ class ElectricityFormatter(GenericDataFormatter):
     valid = df.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
     test = df.loc[index >= test_boundary - 7]
 
-    self.set_scalers(train)
+    set_scalers(train)
 
-    return (self.transform_inputs(data) for data in [train, valid, test])
+    return (transform_inputs(data) for data in [train, valid, test])
 
-  def set_scalers(self, df):
+  def set_scalers(df):
     """Calibrates scalers using the data supplied.
     Args:
       df: Data to use to calibrate scalers.
     """
-    print('Setting scalers with training data...')
-
-    column_definitions = self.get_column_definition()
-    id_column = utils.get_single_col_by_input_type(InputTypes.ID,
-                                                   column_definitions)
-    target_column = utils.get_single_col_by_input_type(InputTypes.TARGET,
-                                                       column_definitions)
 
     # Format real scalers
     real_inputs = utils.extract_cols_from_data_type(
@@ -78,8 +70,7 @@ class ElectricityFormatter(GenericDataFormatter):
         {InputTypes.ID, InputTypes.TIME})
 
     # Initialise scaler caches
-    self._real_scalers = {}
-    self._target_scaler = {}
+     = {}
     identifiers = []
     for identifier, sliced in df.groupby(id_column):
 

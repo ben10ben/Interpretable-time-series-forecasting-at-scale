@@ -120,9 +120,12 @@ def create_electricity_timeseries_tft():
     #target_normalizer = TorchNormalizer()
     #electricity_data["power_usage"] = target_normalizer.fit_transform(electricity_data["power_usage"])
     #print(electricity_data["power_usage"].mean())
+    #    static = ["categorical_id"]
+    #numeric = ["power_usage", "hour", "day_of_week", "hours_from_start"]
+    #categorical = ["categorical_id"]
     
-    electricity_data["power_usage"] = StandardScaler.fit_transform(electricity_data["power_usage"])
-    print(electricity_data["power_usage"].mean())
+    #StandardScaler.fit_transform(electricity_data, electricity_data["power_usage"])
+    #print(electricity_data["power_usage"].mean())
     
     training = TimeSeriesDataSet(
       electricity_data[lambda x: x.time_idx <= training_cutoff],
@@ -140,9 +143,10 @@ def create_electricity_timeseries_tft():
       time_varying_known_reals=["time_idx", "hour", "day_of_week"],
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
-      #target_normalizer=target_normalizer,  # use softplus and normalize by group
+      target_normalizer=GroupNormalizer(groups=["power_usage", "hour", "day_of_week", "time_idx"], scale_by_group=True),
+      #target_normalizer=GroupNormalizer(groups=["categorical_id"])
       add_relative_time_idx=False,
-      add_target_scales=False,
+      add_target_scales=True,
       add_encoder_length=False, #
     )
     
