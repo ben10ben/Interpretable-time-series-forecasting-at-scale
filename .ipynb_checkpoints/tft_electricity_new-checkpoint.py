@@ -21,6 +21,9 @@ if __name__ == '__main__':
   
   from dataloading_helpers import electricity_dataloader
   from config import *
+  
+  tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
+
 
 
   print("Preparing dataset...") 
@@ -54,7 +57,7 @@ if __name__ == '__main__':
       accelerator=accelerator,
       enable_model_summary=True,
       gradient_clip_val=0.01,
-      limit_train_batches=0.05, 
+      #limit_train_batches=, 
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback],#, DeviceStatsMonitor],
       log_every_n_steps=1,
@@ -66,7 +69,7 @@ if __name__ == '__main__':
   print("Definining TFT...")
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.005,
+      learning_rate=0.001,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
@@ -80,7 +83,7 @@ if __name__ == '__main__':
   )
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
-  trainer.optimizer = Adam(tft.parameters(), lr=0.005)
+  trainer.optimizer = Adam(tft.parameters(), lr=0.001)
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
    
   print("Training model")
@@ -100,7 +103,7 @@ if __name__ == '__main__':
       
   print("trainging done. Evaluating...")
 
-
+  
   ## evaluate
   best_model_path = trainer.checkpoint_callback.best_model_path
   best_tft = tft.load_from_checkpoint(best_model_path)
