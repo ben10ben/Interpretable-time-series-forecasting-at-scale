@@ -81,20 +81,24 @@ def prep_electricity_data(txt_file):
 def create_electricity_timeseries_tft():
 
     try:
-        electricity_data = pd.read_csv(csv_file, index_col=0)    
+        electricity = pd.read_csv(csv_file, index_col=0)    
     except:
-        electricity_data = prep_electricity_data(txt_file)
+        electricity = prep_electricity_data(txt_file)
 
+    electricity['time_idx'] = electricity['time_idx'].astype('int')
 
-    electricity_data['time_idx'] = electricity_data['time_idx'].astype('int')
-    electricity_data['categorical_id'] = electricity_data['categorical_id'].astype('category')
-  
+    standardizer = electricity_formatter.ElectricityFormatter()
+    train, test, validation = standardizer.split_data(df=electricity)
+
+    train["categorical_id"] = train['categorical_id'].astype('string').astype("category")
+    test["categorical_id"] = test['categorical_id'].astype('string').astype("category")
+    validation["categorical_id"] = validation['categorical_id'].astype('string').astype("category") 
+        
     max_prediction_length = 24
     max_encoder_length = 168
-    training_cutoff = electricity_data["time_idx"].max() - max_prediction_length
     
     training = TimeSeriesDataSet(
-      electricity_data[lambda x: x.time_idx <= training_cutoff],
+      train,
       time_idx="time_idx",
       target="power_usage",
       group_ids=["id"],
@@ -109,73 +113,48 @@ def create_electricity_timeseries_tft():
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=[],
       target_normalizer=None,
-      categorical_encoders=None,
+      categorical_encoders=[],
       add_relative_time_idx=False,
       add_target_scales=False,
       add_encoder_length=False,
     )
+
+    model_parameters = training.get_parameters()
+
+    testing = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=test, predict=True, stop_randomization=True)
+    validating = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=validation, predict=True, stop_randomization=True)
     
+
+    # create dataloaders for model
+    batch_size = 64
     
-    
-  # create validation set (predict=True) which means to predict the last max_prediction_length points in time
-  # for each series
-    validation = TimeSeriesDataSet.from_dataset(training, electricity_data, predict=True, stop_randomization=True)
-
-  # create dataloaders for model
-    batch_size = 128  # set this between 32 to 128
-    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=45, pin_memory=True)
-    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 20, num_workers=30, pin_memory=True)
-
-
-# output data as dict for easier modularity
-    return {"training_dataset": training, 
-          "train_dataloader": train_dataloader,
-          "val_dataloader": val_dataloader, 
-          "validaton_dataset": validation}
-
-
-
-
-def create_electricity_timeseries_deepar():
-
-    try:
-        electricity_data = pd.read_csv(csv_file, index_col=0)    
-    except:
-        electricity_data = prep_electricity_data(txt_file)
-
-    # create dataset and dataloaders
-    max_encoder_length = 168
-    max_prediction_length = 24
-
-    training_cutoff = data["time_idx"].max() - max_prediction_length
-
-    context_length = max_encoder_length
-    prediction_length = max_prediction_length
-
-    training = TimeSeriesDataSet(
-        data[lambda x: x.time_idx <= training_cutoff],
-        time_idx="time_idx",
-        target="power_usage",
-        categorical_encoders={"series": NaNLabelEncoder().fit(data.series)},
-        group_ids=["series"],
-        static_categoricals=[
-            "series"
-        ],  # as we plan to forecast correlations, it is important to use series characteristics (e.g. a series identifier)
-        time_varying_unknown_reals=["value"],
-        max_encoder_length=context_length,
-        max_prediction_length=prediction_length,
-    )
-
-    validation = TimeSeriesDataSet.from_dataset(training, data, min_prediction_idx=training_cutoff + 1)
-    batch_size = 128
-    # synchronize samples in each batch over time - only necessary for DeepVAR, not for DeepAR
-    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=20, batch_sampler="synchronized")
-    
-    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=10, batch_sampler="synchronized")
-    
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=10, pin_memory=True)
+    test_dataloader = testing.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)
+    val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size * 20, num_workers=10, pin_memory=True)       
+  
     # output data as dict for easier modularity
     return {"training_dataset": training, 
           "train_dataloader": train_dataloader,
           "val_dataloader": val_dataloader, 
-          "validaton_dataset": validation}
+          "validaton_dataset": validation,
+          "test_dataset": testing,
+          "test_dataloader": test_dataloader,
+           }
+  
+  
+def create_electricity_timeseries_np():
+    try:
+        electricity = pd.read_csv(csv_file, index_col=0)    
+    except:
+        electricity = prep_electricity_data(txt_file)
 
+    electricity['time_idx'] = electricity['time_idx'].astype('int')
+
+    standardizer = electricity_formatter.ElectricityFormatter()
+    train, test, validation = standardizer.split_data(df=electricity)
+
+    train["categorical_id"] = train['categorical_id'].astype('string').astype("category")
+    test["categorical_id"] = test['categorical_id'].astype('string').astype("category")
+    validation["categorical_id"] = validation['categorical_id'].astype('string').astype("category") 
+    
+    return train, test, validation

@@ -87,12 +87,13 @@ if __name__ == '__main__':
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
    
   print("Training model")
+  
   # fit network
   trainer.fit(
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
       val_dataloaders=timeseries_dict["val_dataloader"],
-      #"~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
+      #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
 
   try:
@@ -118,8 +119,6 @@ if __name__ == '__main__':
                 'MAE'       : (actuals - predictions).abs().mean().item(),
                 'device'    : devices,
                 'dataset'   : "electricity",
-                'actuals'   : actuals,
-                'prediction': predictions
                 }
 
   with open('output.txt', 'w') as convert_file:
@@ -127,5 +126,3 @@ if __name__ == '__main__':
 
   print("Done.")
     
-  #trainer.fit(ckpt_path="some/path/to/my_checkpoint.ckpt")
-   # trainer = Trainer(resume_from_checkpoint="some/path/to/my_checkpoint.ckpt")
