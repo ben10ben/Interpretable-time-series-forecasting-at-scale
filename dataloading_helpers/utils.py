@@ -19,7 +19,7 @@ import os
 import pathlib
 
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
 from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
 
 
@@ -67,7 +67,7 @@ def tensorflow_quantile_loss(y, y_pred, quantile):
     quantile: Quantile to use for loss calculations (between 0 & 1)
   Returns:
     Tensor for quantile loss.
-  """
+  
 
   # Checks quantile
   if quantile < 0 or quantile > 1:
@@ -80,7 +80,7 @@ def tensorflow_quantile_loss(y, y_pred, quantile):
       1. - quantile) * tf.maximum(-prediction_underflow, 0.)
 
   return tf.reduce_sum(q_loss, axis=-1)
-
+"""
 
 def numpy_normalised_quantile_loss(y, y_pred, quantile):
   """Computes normalised quantile loss for numpy arrays.
@@ -123,7 +123,7 @@ def get_default_tensorflow_config(tf_device='gpu', gpu_id=0):
     gpu_id: GPU ID to use if relevant
   Returns:
     Tensorflow config.
-  """
+  
 
   if tf_device == 'cpu':
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # for training on cpu
@@ -143,14 +143,14 @@ def get_default_tensorflow_config(tf_device='gpu', gpu_id=0):
 
 
 def save(tf_session, model_folder, cp_name, scope=None):
-  """Saves Tensorflow graph to checkpoint.
+  Saves Tensorflow graph to checkpoint.
   Saves all trainiable variables under a given variable scope to checkpoint.
   Args:
     tf_session: Session containing graph
     model_folder: Folder to save models
     cp_name: Name of Tensorflow checkpoint
     scope: Variable scope containing variables to save
-  """
+  
   # Save model
   if scope is None:
     saver = tf.train.Saver()
@@ -164,14 +164,14 @@ def save(tf_session, model_folder, cp_name, scope=None):
 
 
 def load(tf_session, model_folder, cp_name, scope=None, verbose=False):
-  """Loads Tensorflow graph from checkpoint.
+  Loads Tensorflow graph from checkpoint.
   Args:
     tf_session: Session to load graph into
     model_folder: Folder containing serialised model
     cp_name: Name of Tensorflow checkpoint
     scope: Variable scope to use.
     verbose: Whether to print additional debugging information.
-  """
+  
   # Load model proper
   load_path = os.path.join(model_folder, '{0}.ckpt'.format(cp_name))
 
@@ -198,7 +198,7 @@ def load(tf_session, model_folder, cp_name, scope=None, verbose=False):
     print('All {0}'.format(','.join(all_vars)))
 
   print('Done.')
-
+"""
 
 def print_weights_in_checkpoint(model_folder, cp_name):
   """Prints all weights in Tensorflow checkpoint.
