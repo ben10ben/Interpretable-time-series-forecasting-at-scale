@@ -80,8 +80,10 @@ if __name__ == '__main__':
       log_interval=1,
       reduce_on_plateau_patience=1000, # is this after 2 epochs or 2 steps? very important
       optimizer="adam"
-
   )
+
+  tft.save_hyperparameters(ignore=['loss'])
+  
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
 
   trainer.optimizer = Adam(tft.parameters(), lr=0.001)
