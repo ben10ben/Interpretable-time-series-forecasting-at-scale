@@ -27,6 +27,7 @@ if __name__ == '__main__':
 
 
   print("Preparing dataset...") 
+  
   electricity = electricity_dataloader.create_electricity_timeseries_tft()
   timeseries_dict =  electricity
   config_name_string = "electricity"
@@ -42,7 +43,7 @@ if __name__ == '__main__':
       accelerator = None
       devices = 'cpu'
 
-  print("Training mode ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
+  print("Training on ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
@@ -92,7 +93,7 @@ if __name__ == '__main__':
   trainer.fit(
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
-      val_dataloaders=timeseries_dict["val_dataloader"],
+      val_dataloaders=timeseries_dict["test_dataloader"],
       #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
 
