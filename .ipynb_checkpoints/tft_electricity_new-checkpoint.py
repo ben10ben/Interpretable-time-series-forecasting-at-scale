@@ -22,7 +22,7 @@ if __name__ == '__main__':
   from dataloading_helpers import electricity_dataloader
   from config import *
   
-  tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
+  #tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 
 
 
