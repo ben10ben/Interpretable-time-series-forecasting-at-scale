@@ -20,7 +20,7 @@ import pathlib
 
 import numpy as np
 #import tensorflow as tf
-from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
+#from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
 
 
 # Generic.
@@ -206,7 +206,7 @@ def print_weights_in_checkpoint(model_folder, cp_name):
     model_folder: Folder containing checkpoint
     cp_name: Name of checkpoint
   Returns:
-  """
+
   load_path = os.path.join(model_folder, '{0}.ckpt'.format(cp_name))
 
   print_tensors_in_checkpoint_file(
@@ -214,3 +214,5 @@ def print_weights_in_checkpoint(model_folder, cp_name):
       tensor_name='',
       all_tensors=True,
       all_tensor_names=True)
+      
+      """
