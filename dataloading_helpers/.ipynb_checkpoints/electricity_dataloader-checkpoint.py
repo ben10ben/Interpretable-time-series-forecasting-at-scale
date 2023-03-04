@@ -130,13 +130,13 @@ def create_electricity_timeseries_tft():
     
     train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=10, pin_memory=True)
     test_dataloader = testing.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)
-    val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size * 20, num_workers=10, pin_memory=True)       
+    val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)       
   
     # output data as dict for easier modularity
     return {"training_dataset": training, 
           "train_dataloader": train_dataloader,
           "val_dataloader": val_dataloader, 
-          "validaton_dataset": validation,
+          "validation_dataset": validating,
           "test_dataset": testing,
           "test_dataloader": test_dataloader,
            }

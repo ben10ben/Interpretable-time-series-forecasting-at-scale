@@ -1,8 +1,3 @@
-import pickle
-
-from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
-
-
 if __name__ == '__main__': 
   print("Importing modules...")
 
@@ -25,6 +20,8 @@ if __name__ == '__main__':
   from torch.optim.lr_scheduler import ReduceLROnPlateau
   from dataloading_helpers import electricity_dataloader
   from config import *
+  import pickle
+  from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 
   print("Preparing dataset...") 
   
@@ -35,28 +32,34 @@ if __name__ == '__main__':
   model_dir = CONFIG_DICT["models"][config_name_string]
 
 
+  if torch.cuda.is_available():
+      accelerator = "gpu"
+      devices = torch.cuda.current_device()
+  else:
+      accelerator = "cpu"
+      devices = None
 
-# create study
-study = optimize_hyperparameters(
+  # create study
+  study = optimize_hyperparameters(
     train_dataloader,
     val_dataloader,
-    model_path="optuna_test",
-    n_trials=200,
-    max_epochs=50,
+    model_path="hypertuning_electricity",
+    n_trials=100,
+    max_epochs=20,
     gradient_clip_val_range=(0.01, 1.0),
-    hidden_size_range=(8, 128),
+    hidden_size_range=(16, 256),
     hidden_continuous_size_range=(8, 128),
     attention_head_size_range=(1, 4),
-    learning_rate_range=(0.001, 0.1),
+    learning_rate_range=(0.0005, 0.1),
     dropout_range=(0.1, 0.3),
-    trainer_kwargs=dict(limit_train_batches=30),
+    trainer_kwargs=dict(limit_train_batches=40, max_epochs=20, log_every_n_steps=5, accelerator=accelerator, devices=devices),
     reduce_on_plateau_patience=4,
     use_learning_rate_finder=True,  # use Optuna to find ideal learning rate or use in-built learning rate finder
-)
+  )
 
-# save study results - also we can resume tuning at a later point in time
-with open("test_study.pkl", "wb") as fout:
-    pickle.dump(study, fout)
+  # save study results - also we can resume tuning at a later point in time
+  with open("hypertuning_electricity.pkl", "wb") as fout:
+      pickle.dump(study, fout)
 
-# show best hyperparameters
-print(study.best_trial.params)
+  # show best hyperparameters
+  print(study.best_trial.params)
