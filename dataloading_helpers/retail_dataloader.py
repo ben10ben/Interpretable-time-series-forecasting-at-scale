@@ -8,6 +8,8 @@ import sklearn.preprocessing
 import os
 import pyunpack
 import glob
+import wget
+import gc
 
 csv_file = CONFIG_DICT["datasets"]["retail"] / "retail.csv"
 
@@ -199,17 +201,50 @@ class FavoritaFormatter(google_helpers.GenericDataFormatter):
             output[col] = self._cat_scalers[col].transform(string_df)
 
         return output
-      
+  
+  
+def download_from_url(url, output_path):
+  """Downloads a file froma url."""
+
+  print('Pulling data from {} to {}'.format(url, output_path))
+  wget.download(url, output_path)
+  print('done')
+
+
+def recreate_folder(path):
+  """Deletes and recreates folder."""
+
+  shutil.rmtree(path)
+  os.makedirs(path)
+
+
 def unzip(zip_path, output_file, data_folder):
-    """Unzips files and checks successful completion."""
+  """Unzips files and checks successful completion."""
 
-    print('Unzipping file: {}'.format(zip_path))
-    pyunpack.Archive(zip_path).extractall(data_folder)
+  print('Unzipping file: {}'.format(zip_path))
+  pyunpack.Archive(zip_path).extractall(data_folder)
 
-    # Checks if unzip was successful
-    if not os.path.exists(output_file):
-        raise ValueError(
-          'Error in unzipping process! {} not found.'.format(output_file))
+  # Checks if unzip was successful
+  if not os.path.exists(output_file):
+    raise ValueError(
+        'Error in unzipping process! {} not found.'.format(output_file))
+
+
+def download_and_unzip(url, zip_path, csv_path, data_folder):
+  """Downloads and unzips an online csv file.
+  Args:
+    url: Web address
+    zip_path: Path to download zip file
+    csv_path: Expected path to csv file
+    data_folder: Folder in which data is stored.
+  """
+
+  download_from_url(url, zip_path)
+
+  unzip(zip_path, csv_path, data_folder)
+
+  print('Done.')
+  
 
 def process_favorita():
     """Processes Favorita dataset.
@@ -220,9 +255,8 @@ def process_favorita():
     """
 
     url = 'https://www.kaggle.com/c/favorita-grocery-sales-forecasting/data'
-
     data_folder = CONFIG_DICT['datasets']['retail']
-
+ 
     # Save manual download to root folder to avoid deleting when re-processing.
     zip_file = os.path.join(data_folder, 'favorita-grocery-sales-forecasting.zip')
 
@@ -348,17 +382,23 @@ def process_favorita():
     temporal.sort_values('unique_id', inplace=True)
 
     print('Saving processed file to {}'.format(CONFIG_DICT['datasets']['retail']))
-    temporal.to_csv(CONFIG_DICT['datasets']['retail'] / "retail")
+    temporal.to_csv(CONFIG_DICT['datasets']['retail'] / "retail.csv")
     
     
-def create_retail_timeseries():
+ 
+    
+def create_retail_timeseries_tft():
     try:
-        #retail_data = pd.read_csv(csv_file, index_col=0)   
-        retail_data = pd.read_csv(CONFIG_DICT["datasets"]["retail"] / "retail_small.csv", index_col=0)   
-    except:
+        retail_data = pd.read_csv(csv_file, index_col=0)
+        retail_data_small = retail_data[retail_data["store_nbr"] < 3]
+        retail_data_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
+
+        #retail_data = pd.read_csv(CONFIG_DICT["datasets"]["retail"] / "retail_small.csv", index_col=0)   
+    except FileNotFoundError:
         process_favorita()
         retail_data = pd.read_csv(csv_file, index_col=0)    
         retail_small = retail_data[:999999]
         retail_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
     
-    return retail_data
+    return retail_data_small
+    

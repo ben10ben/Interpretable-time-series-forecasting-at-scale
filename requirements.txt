@@ -1,4 +1,3 @@
-#tensorflow
 pytorch-forecasting
 pytorch-forecasting[mqf2]
 pytorch-lightning
@@ -18,3 +17,4 @@ matplotlib
 glob
 gc
 scikit-learn
+protobuf==3.9.2
