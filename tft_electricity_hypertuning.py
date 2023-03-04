@@ -1,7 +1,7 @@
 if __name__ == '__main__': 
   print("Importing modules...")
 
-  import torch
+  from torch.cuda import is_available
   import pytorch_lightning as pl
   import tensorboard as tb
   import json
@@ -22,6 +22,7 @@ if __name__ == '__main__':
   from config import *
   import pickle
   from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
+  from lightning.pytorch.accelerators import find_usable_cuda_devices
 
   print("Preparing dataset...") 
   
@@ -32,9 +33,9 @@ if __name__ == '__main__':
   model_dir = CONFIG_DICT["models"][config_name_string]
 
 
-  if torch.cuda.is_available():
+  if is_available():
       accelerator = "gpu"
-      devices = torch.cuda.current_device()
+      devices = find_usable_cuda_devices(1)
   else:
       accelerator = "cpu"
       devices = None
