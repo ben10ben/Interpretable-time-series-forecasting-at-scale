@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
 
   if is_available():
-      accelerator = "gpu"
+      accelerator = "cuda"
       devices = find_usable_cuda_devices(1)
   else:
       accelerator = "cpu"
