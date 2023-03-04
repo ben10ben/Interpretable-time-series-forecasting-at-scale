@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
   # create study
   study = optimize_hyperparameters(
-    train_dataloader,
-    val_dataloader,
+    electricity["train_dataloader"],
+    electricity["val_dataloader"],
     model_path="hypertuning_electricity",
     n_trials=100,
     max_epochs=20,
