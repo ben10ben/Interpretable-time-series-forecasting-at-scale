@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from config import *
 from pytorch_forecasting import TimeSeriesDataSet
-from dataloading_helpers import google_helpers
+from dataloading_helpers import google_helpers, retail_formatter
 import sklearn.preprocessing
 import os
 import pyunpack
@@ -13,196 +13,7 @@ import gc
 
 csv_file = CONFIG_DICT["datasets"]["retail"] / "retail.csv"
 
-
-DataTypes = google_helpers.DataTypes
-InputTypes = google_helpers.InputTypes
-
-
-class FavoritaFormatter(google_helpers.GenericDataFormatter):
-    """Defines and formats data for the Favorita dataset.
-    Attributes:
-        column_definition: Defines input and data type of column used in the
-        experiment.
-    identifiers: Entity identifiers used in experiments.
-    """
-
-    _column_definition = [
-        ('traj_id', DataTypes.REAL_VALUED, InputTypes.ID),
-        ('date', DataTypes.DATE, InputTypes.TIME),
-        ('log_sales', DataTypes.REAL_VALUED, InputTypes.TARGET),
-        ('onpromotion', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('transactions', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
-        ('oil', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
-        ('day_of_week', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('day_of_month', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-        ('month', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-        ('national_hol', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('regional_hol', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('local_hol', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('open', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-        ('item_nbr', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('store_nbr', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('city', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('state', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('type', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('cluster', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('family', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('class', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-        ('perishable', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT)
-    ]
-
-    def __init__(self):
-        """Initialises formatter."""
-
-        self.identifiers = None
-        self._real_scalers = None
-        self._cat_scalers = None
-        self._target_scaler = None
-        self._num_classes_per_cat_input = None
-
-    def split_data(self, df, valid_boundary=None, test_boundary=None):
-        """Splits data frame into training-validation-test data frames.
-        This also calibrates scaling object, and transforms data for each split.
-        Args:
-          df: Source data frame to split.
-          valid_boundary: Starting year for validation data
-          test_boundary: Starting year for test data
-        Returns:
-          Tuple of transformed (train, valid, test) data.
-        """
-
-        print('Formatting train-valid-test splits.')
-
-        if valid_boundary is None:
-            valid_boundary = pd.datetime(2015, 12, 1)
-
-        fixed_params = self.get_fixed_params()
-        time_steps = fixed_params['total_time_steps']
-        lookback = fixed_params['num_encoder_steps']
-        forecast_horizon = time_steps - lookback
-
-        df['date'] = pd.to_datetime(df['date'])
-        df_lists = {'train': [], 'valid': [], 'test': []}
-        for _, sliced in df.groupby('traj_id'):
-            index = sliced['date']
-            train = sliced.loc[index < valid_boundary]
-            train_len = len(train)
-            valid_len = train_len + forecast_horizon
-            valid = sliced.iloc[train_len - lookback:valid_len, :]
-            test = sliced.iloc[valid_len - lookback:valid_len + forecast_horizon, :]
-
-            sliced_map = {'train': train, 'valid': valid, 'test': test}
-
-            for k in sliced_map:
-                item = sliced_map[k]
-
-                if len(item) >= time_steps:
-                    df_lists[k].append(item)
-
-        dfs = {k: pd.concat(df_lists[k], axis=0) for k in df_lists}
-
-        train = dfs['train']
-        self.set_scalers(train, set_real=True)
-
-        # Use all data for label encoding  to handle labels not present in training.
-        self.set_scalers(df, set_real=False)
-
-        # Filter out identifiers not present in training (i.e. cold-started items).
-    def filter_ids(frame):
-        identifiers = set(self.identifiers)
-        index = frame['traj_id']
-        return frame.loc[index.apply(lambda x: x in identifiers)]
-
-        valid = filter_ids(dfs['valid'])
-        test = filter_ids(dfs['test'])
-
-        return (self.transform_inputs(data) for data in [train, valid, test])
-
-    def set_scalers(self, df, set_real=True):
-        """Calibrates scalers using the data supplied.
-        Label encoding is applied to the entire dataset (i.e. including test),
-        so that unseen labels can be handled at run-time.
-        Args:
-          df: Data to use to calibrate scalers.
-          set_real: Whether to fit set real-valued or categorical scalers
-        """
-        print('Setting scalers with training data...')
-
-        column_definitions = self.get_column_definition()
-        id_column = utils.get_single_col_by_input_type(InputTypes.ID,
-                                                       column_definitions)
-        target_column = utils.get_single_col_by_input_type(InputTypes.TARGET,
-                                                           column_definitions)
-
-        if set_real:
-            # Extract identifiers in case required
-            self.identifiers = list(df[id_column].unique())
-
-            # Format real scalers
-            self._real_scalers = {}
-            for col in ['oil', 'transactions', 'log_sales']:
-                self._real_scalers[col] = (df[col].mean(), df[col].std())
-
-            self._target_scaler = (df[target_column].mean(), df[target_column].std())
-
-        else:
-            # Format categorical scalers
-            categorical_inputs = utils.extract_cols_from_data_type(
-            DataTypes.CATEGORICAL, column_definitions,
-            {InputTypes.ID, InputTypes.TIME})
-
-            categorical_scalers = {}
-            num_classes = []
-            if self.identifiers is None:
-                raise ValueError('Scale real-valued inputs first!')
-            id_set = set(self.identifiers)
-            valid_idx = df['traj_id'].apply(lambda x: x in id_set)
-            for col in categorical_inputs:
-                # Set all to str so that we don't have mixed integer/string columns
-                srs = df[col].apply(str).loc[valid_idx]
-                categorical_scalers[col] = sklearn.preprocessing.LabelEncoder().fit(srs.values)
-
-            num_classes.append(srs.nunique())
-
-            # Set categorical scaler outputs
-            self._cat_scalers = categorical_scalers
-            self._num_classes_per_cat_input = num_classes
-
-    def transform_inputs(self, df):
-        """Performs feature transformations.
-        This includes both feature engineering, preprocessing and normalisation.
-        Args:
-          df: Data frame to transform.
-        Returns:
-          Transformed data frame.
-        """
-        output = df.copy()
-
-        if self._real_scalers is None and self._cat_scalers is None:
-            raise ValueError('Scalers have not been set!')
-
-        column_definitions = self.get_column_definition()
-
-        categorical_inputs = utils.extract_cols_from_data_type(
-            DataTypes.CATEGORICAL, column_definitions,
-            {InputTypes.ID, InputTypes.TIME})
-
-        # Format real inputs
-        for col in ['log_sales', 'oil', 'transactions']:
-            mean, std = self._real_scalers[col]
-            output[col] = (df[col] - mean) / std
-
-            if col == 'log_sales':
-                output[col] = output[col].fillna(0.)  # mean imputation
-
-        # Format categorical inputs
-        for col in categorical_inputs:
-            string_df = df[col].apply(str)
-            output[col] = self._cat_scalers[col].transform(string_df)
-
-        return output
-  
-  
+ 
 def download_from_url(url, output_path):
   """Downloads a file froma url."""
 
@@ -381,7 +192,18 @@ def process_favorita():
 
     temporal.sort_values('unique_id', inplace=True)
 
+    
+    temporal["unit_sales"] = temporal["unit_sales"].astype("float32")
+    temporal["open"] = temporal["open"].astype("int16")
+    temporal["log_sales"] = temporal["log_sales"].astype("float32")
+    temporal["oil"] = temporal["oil"].astype("float32")
+    temporal["transactions"] = temporal["transactions"].astype("float32")
+    temporal["day_of_month"] = temporal["day_of_month"].astype("int16")
+    temporal["month"] = temporal["month"].astype("int16")    
+    
     print('Saving processed file to {}'.format(CONFIG_DICT['datasets']['retail']))
+    
+    
     temporal.to_csv(CONFIG_DICT['datasets']['retail'] / "retail.csv")
     
     
@@ -390,15 +212,17 @@ def process_favorita():
 def create_retail_timeseries_tft():
     try:
         retail_data = pd.read_csv(csv_file, index_col=0)
-        retail_data_small = retail_data[retail_data["store_nbr"] < 3]
-        retail_data_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
+        #retail_data_small = retail_data[retail_data["store_nbr"] < 3]
+        #retail_data_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
 
-        #retail_data = pd.read_csv(CONFIG_DICT["datasets"]["retail"] / "retail_small.csv", index_col=0)   
     except FileNotFoundError:
         process_favorita()
         retail_data = pd.read_csv(csv_file, index_col=0)    
-        retail_small = retail_data[:999999]
-        retail_small.to_csv(CONFIG_DICT['datasets']['retail'] / "retail_small.csv")
     
-    return retail_data_small
+    
+    standardizer = retail_formatter.FavoritaFormatter()
+    train, test, validation = standardizer.split_data(df=retail_data)
+    
+    
+    return train, test, validation
     
