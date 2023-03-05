@@ -44,7 +44,8 @@ if __name__ == '__main__':
   print("Training on ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
   checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
-    dirpath=CONFIG_DICT["models"]["electricity"], filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
+          dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
+          filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
   
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")

@@ -34,7 +34,7 @@ if __name__ == '__main__':
   study = optimize_hyperparameters(
     electricity["train_dataloader"],
     electricity["val_dataloader"],
-    model_path=CONFIG_DICT["models"]["electricity"],
+    model_path=CONFIG_DICT["models"]["electricity"] / "tuning_logs",
     n_trials=100,
     max_epochs=20,
     gradient_clip_val_range=(0.01, 0.2),
@@ -49,8 +49,9 @@ if __name__ == '__main__':
   )
 
   # save study results - also we can resume tuning at a later point in time
-  with open("hypertuning_electricity.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl", "wb") as fout:
       pickle.dump(study, fout)
+      
 
   # show best hyperparameters
   print(study.best_trial.params)
