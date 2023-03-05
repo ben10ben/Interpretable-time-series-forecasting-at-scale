@@ -30,6 +30,8 @@ if __name__ == '__main__':
   model_dir = CONFIG_DICT["models"][config_name_string]
 
   
+  print(timeseries_dict)
+  
   print("Checking for device...")
 
   if torch.cuda.is_available():
@@ -41,11 +43,13 @@ if __name__ == '__main__':
 
   print("Training on ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
 
+  checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
+    dirpath=CONFIG_DICT["models"]["electricity"], filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
+  
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
-  #DeviceStatsMonitor = DeviceStatsMonitor()    #use to find bottlenecks
 
   trainer = pl.Trainer(
       default_root_dir=model_dir,
@@ -55,7 +59,7 @@ if __name__ == '__main__':
       enable_model_summary=True,
       gradient_clip_val=0.01,
       fast_dev_run=False,  
-      callbacks=[lr_logger, early_stop_callback],#, DeviceStatsMonitor],
+      callbacks=[lr_logger, early_stop_callback, checkpoint_callback],
       log_every_n_steps=1,
       logger=logger,
       profiler="simple",
@@ -65,30 +69,25 @@ if __name__ == '__main__':
   
   warnings.filterwarnings("error") # supress UserWarning
   
-  try:
-    tft = TemporalFusionTransformer.from_dataset(
+  tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
       learning_rate=0.001,
       hidden_size=160,
       attention_head_size=4,
       dropout=0.1,
       hidden_continuous_size=80,
-      output_size= 3,  # 7 quantiles by default
+      output_size= 3,
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
-      reduce_on_plateau_patience=1000, # is this after 2 epochs or 2 steps? very important
+      reduce_on_plateau_patience=4
       optimizer="adam"
     )
-  except UserWarning:
-    print("UserWarnings are beeing supressed.")
 
   warnings.resetwarnings()
-  
-  print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
-
   trainer.optimizer = Adam(tft.parameters(), lr=0.001)
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
-   
+  
+  print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
   print("Training model")
   
   # fit network
@@ -99,12 +98,7 @@ if __name__ == '__main__':
       #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
 
-  try:
-      with open('optimizer_state.txt', 'w') as convert_file:
-          convert_file.write(json.dumps(optimizer_state))
-  except:
-      print("Could not safe optimizer.")
-      
+        
   print("trainging done. Evaluating...")
 
   

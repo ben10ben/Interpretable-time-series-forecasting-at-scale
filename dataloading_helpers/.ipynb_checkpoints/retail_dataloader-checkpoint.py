@@ -224,5 +224,62 @@ def create_retail_timeseries_tft():
     train, test, validation = standardizer.split_data(df=retail_data)
     
     
-    return train, test, validation
+    static_categorical = ["perishable", "class", "family", "cluster", "type", "state", "city", "store_nbr", "item_nbr"]
+    time_varying_known_categoricals = ["local_hol", "regional_hol", "national_hol", "day_of_week", "onpromotion"]
+    time_idx = "date"
+    group_ids = "traj_id"
+    target = "log_sales"
+    real_known = ["day_of_month", "month", "open"]
+    real_observed = ["transactions", "oil"]
+    
+
+    max_prediction_length = 30
+    max_encoder_length = 90
+    
+    training = TimeSeriesDataSet(
+      train,
+      time_idx=time_idx,
+      target=target,
+      group_ids=group_ids,
+      min_encoder_length=max_encoder_length,
+      max_encoder_length=max_encoder_length,
+      min_prediction_length=max_prediction_length,
+      max_prediction_length=max_prediction_length,
+      static_categoricals=static_categorical,
+      static_reals=[],
+      time_varying_known_categoricals=time_varying_known_categoricals,
+      time_varying_known_reals=real_known,
+      time_varying_unknown_categoricals=[],
+      time_varying_unknown_reals=real_observed,
+      target_normalizer=None,
+      categorical_encoders=[],
+      add_relative_time_idx=False,
+      add_target_scales=False,
+      add_encoder_length=False,
+    )
+
+    model_parameters = training.get_parameters()
+
+    testing = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=test, predict=True, stop_randomization=True)
+    validating = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=validation, predict=True, stop_randomization=True)
+    
+
+    # create dataloaders for model
+    batch_size = 128
+    
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=10, pin_memory=True)
+    test_dataloader = testing.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)
+    val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)       
+  
+    # output data as dict for easier modularity
+    return {"training_dataset": training, 
+          "train_dataloader": train_dataloader,
+          "val_dataloader": val_dataloader, 
+          "validation_dataset": validating,
+          "test_dataset": testing,
+          "test_dataloader": test_dataloader,
+           }
+    
+    
+
     

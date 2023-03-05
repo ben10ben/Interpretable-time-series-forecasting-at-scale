@@ -28,3 +28,13 @@ retail dataset: https://storage.googleapis.com/kaggle-competitions-data/kaggle-v
 
 
 
+
+prelimenary code layout:
+
+run setup.py to create venv, folderstructure, download datasets
+
+use notebooks for EDA, loading trained models for validation run and visualization / explainability
+
+use model_dataset_hypertuning.py to find optimal hyperparameters for the model-dataset combination
+
+use model_dataset.py to make full training run - best model can be loaded into notebook and used exploratory

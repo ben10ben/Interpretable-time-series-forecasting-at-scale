@@ -34,7 +34,7 @@ if __name__ == '__main__':
   study = optimize_hyperparameters(
     electricity["train_dataloader"],
     electricity["val_dataloader"],
-    model_path="hypertuning_electricity_2",
+    model_path=CONFIG_DICT["models"]["electricity"],
     n_trials=100,
     max_epochs=20,
     gradient_clip_val_range=(0.01, 0.2),
@@ -43,13 +43,13 @@ if __name__ == '__main__':
     attention_head_size_range=(1, 4),
     learning_rate_range=(0.0005, 0.01),
     dropout_range=(0.1, 0.3),
-    trainer_kwargs=dict(limit_train_batches=60, max_epochs=20, log_every_n_steps=5, accelerator=accelerator, devices=1),
+    trainer_kwargs=dict(limit_train_batches=100, max_epochs=20, log_every_n_steps=5, accelerator=accelerator, devices=1),
     reduce_on_plateau_patience=4,
     use_learning_rate_finder=False,  # use Optuna to find ideal learning rate or use in-built learning rate finder
   )
 
   # save study results - also we can resume tuning at a later point in time
-  with open("hypertuning_electricity_2.pkl", "wb") as fout:
+  with open("hypertuning_electricity.pkl", "wb") as fout:
       pickle.dump(study, fout)
 
   # show best hyperparameters
