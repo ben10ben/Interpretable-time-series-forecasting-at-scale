@@ -45,8 +45,8 @@ if __name__ == '__main__':
           dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
           filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
   
-  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
-  early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
+  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "writer_logs" )
+  early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=3, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   
