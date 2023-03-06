@@ -28,9 +28,6 @@ if __name__ == '__main__':
   config_name_string = "electricity"
   parameters = []
   model_dir = CONFIG_DICT["models"][config_name_string]
-
-  
-  print(timeseries_dict)
   
   print("Checking for device...")
 
@@ -79,7 +76,7 @@ if __name__ == '__main__':
 
   print("Definining TFT...")
   
-  warnings.filterwarnings("error") # supress UserWarning
+  #warnings.filterwarnings("error") # supress UserWarning
   
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
@@ -95,7 +92,7 @@ if __name__ == '__main__':
       optimizer="adam"
     )
 
-  warnings.resetwarnings()
+  #warnings.resetwarnings()
   
   trainer.optimizer = Adam(tft.parameters(), lr=hyper_dict["learning_rate"])
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
