@@ -15,7 +15,7 @@ if __name__ == '__main__':
   from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
   from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
   from pytorch_forecasting.data.encoders import GroupNormalizer
-  from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
+  from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint
   from torch.optim import Adam
   from torch.optim.lr_scheduler import ReduceLROnPlateau
   from dataloading_helpers import electricity_dataloader

@@ -158,3 +158,22 @@ def create_electricity_timeseries_np():
     validation["categorical_id"] = validation['categorical_id'].astype('string').astype("category") 
     
     return train, test, validation
+  
+  
+def create_electricity_dataframe_not_normalized():
+    try:
+        electricity = pd.read_csv(csv_file, index_col=0)    
+    except:
+        electricity = prep_electricity_data(txt_file)
+
+    electricity['time_idx'] = electricity['time_idx'].astype('int')
+
+    valid_boundary=1315 
+    test_boundary=1339
+    
+    index = electricity['days_from_start']
+    train = electricity.loc[index < valid_boundary]
+    valid = electricity.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
+    test = electricity.loc[index >= test_boundary - 7]
+    
+    return train, test, valid
