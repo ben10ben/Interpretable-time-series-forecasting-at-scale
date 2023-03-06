@@ -41,8 +41,6 @@ if __name__ == '__main__':
       accelerator = None
       devices = 'cpu'
 
-  print("Training on ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
-
   checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
           dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
           filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
@@ -51,14 +49,27 @@ if __name__ == '__main__':
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
-
+  
+  # best parameters estimated by hypertuning and manually rounded
+  hyper_dict = {
+                'gradient_clip_val': 0.052, 
+                'hidden_size': 128, 
+                'dropout': 0.15, 
+                'hidden_continuous_size': 32, 
+                'attention_head_size': 2, 
+                'learning_rate': 0.007,
+               }
+  
+  # uncomment to read hyperparamters from hyper-tuning script
+  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl")
+  
   trainer = pl.Trainer(
       default_root_dir=model_dir,
       max_epochs=10,
       devices=devices,
       accelerator=accelerator,
       enable_model_summary=True,
-      gradient_clip_val=0.01,
+      gradient_clip_val=hyper_dict["gradient_clip_val"],
       fast_dev_run=False,  
       callbacks=[lr_logger, early_stop_callback, checkpoint_callback],
       log_every_n_steps=1,
@@ -72,11 +83,11 @@ if __name__ == '__main__':
   
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.001,
-      hidden_size=160,
-      attention_head_size=4,
-      dropout=0.1,
-      hidden_continuous_size=80,
+      learning_rate=hyper_dict["learning_rate"],
+      hidden_size=hyper_dict["hidden_size"],
+      attention_head_size=hyper_dict["attention_head_size"],
+      dropout=hyper_dict["dropout"],
+      hidden_continuous_size=hyper_dict["hidden_continuous_size"],
       output_size= 3,
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
@@ -85,42 +96,30 @@ if __name__ == '__main__':
     )
 
   warnings.resetwarnings()
-  trainer.optimizer = Adam(tft.parameters(), lr=0.001)
+  
+  trainer.optimizer = Adam(tft.parameters(), lr=hyper_dict["learning_rate"])
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
   
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
-  print("Training model")
+  print("Training model...")
   
   # fit network
   trainer.fit(
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
-      val_dataloaders=timeseries_dict["test_dataloader"],
+      val_dataloaders=timeseries_dict["val_dataloader"],
       #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
 
-        
+  # safe model for later use
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model")
+  
   print("trainging done. Evaluating...")
 
-  
-  ## evaluate
-  best_model_path = trainer.checkpoint_callback.best_model_path
-  best_tft = tft.load_from_checkpoint(best_model_path)
-  actuals = torch.cat([y[0] for x, y in iter(timeseries_dict["val_dataloader"])])
-  predictions = best_tft.predict(timeseries_dict["val_dataloader"])
-  print("Best model MAE: ",(actuals - predictions).abs().mean().item())
+  output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-
-
-  output_dict = {
-                'model_path': best_model_path,
-                'MAE'       : (actuals - predictions).abs().mean().item(),
-                'device'    : devices,
-                'dataset'   : "electricity",
-                }
-
-  with open('output.txt', 'w') as convert_file:
-       convert_file.write(json.dumps(output_dict))
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output.pkl", "wb") as fout:
+      pickle.dump(output, fout)
 
   print("Done.")
     

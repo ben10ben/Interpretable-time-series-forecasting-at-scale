@@ -6,6 +6,7 @@ if __name__ == '__main__':
   import tensorboard as tb
   import json
   import time
+  import warnings
   from torch import nn
   from pytorch_lightning.accelerators import *
   from torch.utils.tensorboard import SummaryWriter
@@ -15,16 +16,10 @@ if __name__ == '__main__':
   from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
   from pytorch_forecasting.data.encoders import GroupNormalizer
   from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, DeviceStatsMonitor
-
   from torch.optim import Adam
   from torch.optim.lr_scheduler import ReduceLROnPlateau
-  
   from dataloading_helpers import electricity_dataloader
   from config import *
-  
-  #tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
-
-
 
   print("Preparing dataset...") 
   
@@ -35,7 +30,10 @@ if __name__ == '__main__':
   model_dir = CONFIG_DICT["models"][config_name_string]
 
   
+  print(timeseries_dict)
+  
   print("Checking for device...")
+
   if torch.cuda.is_available():
       accelerator = "gpu"
       devices = find_usable_cuda_devices(1)
@@ -43,87 +41,85 @@ if __name__ == '__main__':
       accelerator = None
       devices = 'cpu'
 
-  print("Training on ", accelerator, "on device: ", devices, ". \nDefining Trainer...") 
-
+  checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
+          dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
+          filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
+  
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
-  #DeviceStatsMonitor = DeviceStatsMonitor()    #use to find bottlenecks
-
+  
+  # best parameters estimated by hypertuning and manually rounded
+  hyper_dict = {
+                'gradient_clip_val': 0.052, 
+                'hidden_size': 128, 
+                'dropout': 0.15, 
+                'hidden_continuous_size': 32, 
+                'attention_head_size': 2, 
+                'learning_rate': 0.007,
+               }
+  
+  # uncomment to read hyperparamters from hyper-tuning script
+  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl")
+  
   trainer = pl.Trainer(
       default_root_dir=model_dir,
       max_epochs=10,
       devices=devices,
       accelerator=accelerator,
       enable_model_summary=True,
-      gradient_clip_val=0.01,
-      #limit_train_batches=, 
+      gradient_clip_val=hyper_dict["gradient_clip_val"],
       fast_dev_run=False,  
-      callbacks=[lr_logger, early_stop_callback],#, DeviceStatsMonitor],
+      callbacks=[lr_logger, early_stop_callback, checkpoint_callback],
       log_every_n_steps=1,
       logger=logger,
       profiler="simple",
-      #reload_dataloaders_every_n_epochs=1,
     )
 
   print("Definining TFT...")
+  
+  warnings.filterwarnings("error") # supress UserWarning
+  
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
-      learning_rate=0.001,
-      hidden_size=160,
-      attention_head_size=4,
-      dropout=0.1,
-      hidden_continuous_size=80,
-      output_size= 3,  # 7 quantiles by default
+      learning_rate=hyper_dict["learning_rate"],
+      hidden_size=hyper_dict["hidden_size"],
+      attention_head_size=hyper_dict["attention_head_size"],
+      dropout=hyper_dict["dropout"],
+      hidden_continuous_size=hyper_dict["hidden_continuous_size"],
+      output_size= 3,
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
-      reduce_on_plateau_patience=1000, # is this after 2 epochs or 2 steps? very important
+      reduce_on_plateau_patience=4
       optimizer="adam"
+    )
 
-  )
-  print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
-
-  trainer.optimizer = Adam(tft.parameters(), lr=0.001)
+  warnings.resetwarnings()
+  
+  trainer.optimizer = Adam(tft.parameters(), lr=hyper_dict["learning_rate"])
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
-   
-  print("Training model")
+  
+  print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
+  print("Training model...")
   
   # fit network
   trainer.fit(
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
-      val_dataloaders=timeseries_dict["test_dataloader"],
+      val_dataloaders=timeseries_dict["val_dataloader"],
       #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
   )
 
-  try:
-      with open('optimizer_state.txt', 'w') as convert_file:
-          convert_file.write(json.dumps(optimizer_state))
-  except:
-      print("Could not safe optimizer.")
-      
+  # safe model for later use
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model")
+  
   print("trainging done. Evaluating...")
 
-  
-  ## evaluate
-  best_model_path = trainer.checkpoint_callback.best_model_path
-  best_tft = tft.load_from_checkpoint(best_model_path)
-  actuals = torch.cat([y[0] for x, y in iter(timeseries_dict["val_dataloader"])])
-  predictions = best_tft.predict(timeseries_dict["val_dataloader"])
-  print("Best model MAE: ",(actuals - predictions).abs().mean().item())
+  output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-
-
-  output_dict = {
-                'model_path': best_model_path,
-                'MAE'       : (actuals - predictions).abs().mean().item(),
-                'device'    : devices,
-                'dataset'   : "electricity",
-                }
-
-  with open('output.txt', 'w') as convert_file:
-       convert_file.write(json.dumps(output_dict))
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output.pkl", "wb") as fout:
+      pickle.dump(output, fout)
 
   print("Done.")
     

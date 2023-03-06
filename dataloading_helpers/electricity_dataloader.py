@@ -122,7 +122,7 @@ def create_electricity_timeseries_tft():
     model_parameters = training.get_parameters()
 
     testing = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=test, predict=True, stop_randomization=True)
-    validating = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=validation, predict=True, stop_randomization=True)
+    validating = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=validation, predict=True,stop_randomization=True)
     
 
     # create dataloaders for model
