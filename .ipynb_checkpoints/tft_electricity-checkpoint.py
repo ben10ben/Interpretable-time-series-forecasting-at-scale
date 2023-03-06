@@ -91,7 +91,7 @@ if __name__ == '__main__':
       output_size= 3,
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
-      reduce_on_plateau_patience=4
+      reduce_on_plateau_patience=4,
       optimizer="adam"
     )
 
