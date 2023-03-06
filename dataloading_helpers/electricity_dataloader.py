@@ -177,3 +177,63 @@ def create_electricity_dataframe_not_normalized():
     test = electricity.loc[index >= test_boundary - 7]
     
     return train, test, valid
+  
+  
+
+def create_electricity_timeseries_tft_not_normalized():
+
+    train, test, validation = create_electricity_dataframe_not_normalized()
+
+    train["categorical_id"] = train['categorical_id'].astype('string').astype("category")
+    test["categorical_id"] = test['categorical_id'].astype('string').astype("category")
+    validation["categorical_id"] = validation['categorical_id'].astype('string').astype("category") 
+        
+    max_prediction_length = 24
+    max_encoder_length = 168
+    
+    
+    #add encoder for numeric / categorical
+    
+    training = TimeSeriesDataSet(
+      train,
+      time_idx="time_idx",
+      target="power_usage",
+      group_ids=["id"],
+      min_encoder_length=max_encoder_length,
+      max_encoder_length=max_encoder_length,
+      min_prediction_length=max_prediction_length,
+      max_prediction_length=max_prediction_length,
+      static_categoricals=["categorical_id"],
+      static_reals=[],
+      time_varying_known_categoricals=[],
+      time_varying_known_reals=["time_idx", "hour", "day_of_week"],
+      time_varying_unknown_categoricals=[],
+      time_varying_unknown_reals=[],
+      target_normalizer=None,
+      categorical_encoders=[],
+      add_relative_time_idx=False,
+      add_target_scales=False,
+      add_encoder_length=False,
+    )
+
+    model_parameters = training.get_parameters()
+
+    testing = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=test, predict=True, stop_randomization=True)
+    validating = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=validation, predict=True,stop_randomization=True)
+    
+
+    # create dataloaders for model
+    batch_size = 64
+    
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=10, pin_memory=True)
+    test_dataloader = testing.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)
+    val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)       
+  
+    # output data as dict for easier modularity
+    return {"training_dataset": training, 
+          "train_dataloader": train_dataloader,
+          "val_dataloader": val_dataloader, 
+          "validation_dataset": validating,
+          "test_dataset": testing,
+          "test_dataloader": test_dataloader,
+           }

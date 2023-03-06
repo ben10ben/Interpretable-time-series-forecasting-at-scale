@@ -11,32 +11,9 @@ CONFIG_DICT = {"datasets":
                         },
                "models":
                         {
-                         "electricity" : WORKING_DIR / "models/electricity/",
-                         "retail"      : WORKING_DIR / "models/retail/",
-                         "walmart"     : WORKING_DIR / "models/walmart/",
-                         "stocks"      : WORKING_DIR / "models/stocks/",                    
+                         "electricity"         : WORKING_DIR / "models/electricity/",
+                         "retail"              : WORKING_DIR / "models/retail/",
+                         "electricity_deepar"  : WORKING_DIR / "models/electricity_deepar/",
+                    
                         },
-               "encoder_length":
-                                {
-                                 "electricity" : 
-                                                {
-                                                 "max_encoder": 168,
-                                                 "max_prediction": 24
-                                                },
-                                 "retail"  : 
-                                                {
-                                                 "max_encoder": 168,
-                                                 "max_prediction": 24
-                                                },
-                                 "walmart" : 
-                                                {
-                                                 "max_encoder": 168,
-                                                 "max_prediction": 24
-                                                }, 
-                                 "stocks" : 
-                                                {
-                                                 "max_encoder": 168,
-                                                 "max_prediction": 24
-                                                }
-                        }
-           }
+               }
