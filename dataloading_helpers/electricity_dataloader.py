@@ -97,8 +97,11 @@ def create_electricity_timeseries_tft():
     max_prediction_length = 24
     max_encoder_length = 168
     
+    training_cutoff = train["time_idx"].max() - max_prediction_length
+   
     training = TimeSeriesDataSet(
-      train,
+      train[lambda x: x.time_idx <= training_cutoff],
+      #train, # find out which case is the correct/better one
       time_idx="time_idx",
       target="power_usage",
       group_ids=["id"],
@@ -119,6 +122,7 @@ def create_electricity_timeseries_tft():
       add_encoder_length=False,
     )
 
+    # get parameters from train dataset to create val/test
     model_parameters = training.get_parameters()
 
     testing = TimeSeriesDataSet.from_parameters(parameters=model_parameters, data=test, predict=True, stop_randomization=True)
@@ -190,9 +194,6 @@ def create_electricity_timeseries_tft_not_normalized():
         
     max_prediction_length = 24
     max_encoder_length = 168
-    
-    
-    #add encoder for numeric / categorical
     
     training = TimeSeriesDataSet(
       train,
