@@ -48,7 +48,6 @@ if __name__ == '__main__':
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   
   # best parameters estimated by hypertuning and manually rounded
-  # with those we achieved train_loss: 0.18, val_loss: 0.22 test_loss: 0.211, MAE/P50: 0.33
   hyper_dict = {
                 'gradient_clip_val': 0.052, 
                 'hidden_size': 128, 
@@ -120,4 +119,3 @@ if __name__ == '__main__':
       pickle.dump(output, fout)
 
   print("Done.")
-    

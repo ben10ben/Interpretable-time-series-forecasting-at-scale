@@ -101,7 +101,7 @@ def create_electricity_timeseries_tft():
    
     training = TimeSeriesDataSet(
       train[lambda x: x.time_idx <= training_cutoff],
-      #train, # find out which case is the correct/better one
+      #train, # find out which case is the correct/better one -> better val_loss with cutoff 
       time_idx="time_idx",
       target="power_usage",
       group_ids=["id"],
