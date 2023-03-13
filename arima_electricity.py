@@ -1,3 +1,5 @@
+print("Importing modules.")
+
 import time
 import pandas as pd
 from dataloading_helpers import electricity_dataloader
@@ -10,9 +12,10 @@ import pmdarima as Arima
 
 if __name__ == '__main__': 
   # load data
+  print("Loading dataset.")
   train_data, test_data, val_data = electricity_dataloader.create_electricity_timeseries_np()
 
-  test_ids = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+  #test_ids = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
   global_preds = pd.Series()
   global_y = pd.Series()
 
@@ -47,9 +50,9 @@ if __name__ == '__main__':
       global_preds = np.concatenate((global_preds, forecasts), axis=None)
       global_y = np.concatenate((global_y, test_data_id_predict_y), axis=None)
 
-      print(f"Mean absolute error: {mean_absolute_error(test_data_id_predict_y, forecasts)}")
+      print(f"Mean absolute error for id {id_string} is: {mean_absolute_error(test_data_id_predict_y, forecasts)}")
 
       end_time = time.time()
       print("This iteration took: ", (end_time-start_time)/60 )
 
-  print(f"Mean absolute error: {mean_absolute_error(global_preds, global_y)}")
+  print(f"Mean absolute error over all ids is: {mean_absolute_error(global_preds, global_y)}")
