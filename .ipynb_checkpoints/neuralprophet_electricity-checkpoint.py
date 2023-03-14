@@ -32,7 +32,7 @@ if __name__ == '__main__':
       return np_model
   
   
-    def split_train_test(df, np_model, num_id=0, valid_p=0.2):
+  def split_train_test(df, np_model, num_id=0, valid_p=0.2):
       '''
       to ran only on part of data (for first # id) :   specify parameter num_id, e.g. num_id=5 (for first 5 ids)
       '''
@@ -51,7 +51,7 @@ if __name__ == '__main__':
       return df_train, df_test
     
     
-    def fit_model(np_model, df_train, df_val, num_epochs, batch_size, learning_rate, num_workers):
+  def fit_model(np_model, df_train, df_val, num_epochs, batch_size, learning_rate, num_workers):
       start_time = time.perf_counter()
 
       metrics = np_model.fit(
@@ -72,44 +72,44 @@ if __name__ == '__main__':
       return metrics, np_model 
   
   
-    print("Loading dataset and doing train-test split.")
-    csv_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.csv"
-    electricity = pd.read_csv(csv_file, index_col=0)
+  print("Loading dataset and doing train-test split.")
+  csv_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.csv"
+  electricity = pd.read_csv(csv_file, index_col=0)
 
-    electricity['date'] =  pd.to_datetime(electricity['date'], format='%Y-%m-%d %H:%M:%S.%f')
-    electricity.rename(columns={"power_usage": "y", "date": "ds", "id": "ID"}, inplace = True)
+  electricity['date'] =  pd.to_datetime(electricity['date'], format='%Y-%m-%d %H:%M:%S.%f')
+  electricity.rename(columns={"power_usage": "y", "date": "ds", "id": "ID"}, inplace = True)
 
-    test_boundary=1339
-    index = electricity['days_from_start']
+  test_boundary=1339
+  index = electricity['days_from_start']
 
-    train = electricity.loc[(index >= 1250) & (index < test_boundary)]
-    test = electricity.loc[index >= test_boundary]
-
-
-    # specify input variables
-    input_columns = ["ID", "y","ds"]                    # index + target + datetime
-
-    future_regressors = []
-    lagged_regressors = ['hour', 'day', 'day_of_week', 'month'] 
-    events = [] 
-
-    train = train[input_columns + lagged_regressors]    # with regressors
-    test = test[input_columns + lagged_regressors] 
+  train = electricity.loc[(index >= 1250) & (index < test_boundary)]
+  test = electricity.loc[index >= test_boundary]
 
 
-    # loading and fitting model
-    print("Loading and fitting model.")
-    np_model = get_model()
+  # specify input variables
+  input_columns = ["ID", "y","ds"]                    # index + target + datetime
 
-    df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
+  future_regressors = []
+  lagged_regressors = ['hour', 'day', 'day_of_week', 'month'] 
+  events = [] 
 
-    metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=10, batch_size=128, learning_rate=0.05, num_workers=30)
+  train = train[input_columns + lagged_regressors]    # with regressors
+  test = test[input_columns + lagged_regressors] 
 
-    #save model for later use
-    with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_model.pkl", "wb") as f:
-        pickle.dump(np_model, f)
 
-    # create a future data frame consisting of the time steps into the future that we need to forecast
-    future = np_model.make_future_dataframe(test, n_historic_predictions=True)
+  # loading and fitting model
+  print("Loading and fitting model.")
+  np_model = get_model()
 
-    forecast = np_model.predict(future)
+  df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
+
+  metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=10, batch_size=128, learning_rate=0.05, num_workers=30)
+
+  #save model for later use
+  with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_model.pkl", "wb") as f:
+      pickle.dump(np_model, f)
+
+  # create a future data frame consisting of the time steps into the future that we need to forecast
+  future = np_model.make_future_dataframe(test, n_historic_predictions=True)
+
+  forecast = np_model.predict(future)
