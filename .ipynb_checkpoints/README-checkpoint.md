@@ -10,28 +10,23 @@ In the notebook you can find some exploratory analysis of the electricity datase
 our best performing NeuralProphet and TemporalFusinTransformer models alongside our baseline.
 
 
-Run `bash setup.sh` to:
-
-  -download the needed datasets
-  -setup a conda enviroment
+Run `bash setup.sh` to:  
+  -download the needed datasets  
+  -setup a conda enviroment  
 
 
 
 With an activated virtual enviroment run:
 
-`python3 tft_electricity_hypertuning.py` to selecting optimal hyperparameters
+`python3 tft_electricity_hypertuning.py` to selecting optimal hyperparameters  
 
+`python3 tft_electricity_google_normalizer.py` to run our TFT implementation with already tuned hyperparameters and copied normalization from the TFT paper  
 
-`python3 tft_electricity_google_normalizer.py` to run our TFT implementation with already tuned hyperparameters and copied normalization from the TFT paper
+`python3 tft_electricity_build_in_normalizer.py` to run our TFT implementation with already tuned hyperparameters and let the TFT module take care of normalization  
 
+`python3 neuralprophet_electricity.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
 
-`python3 tft_electricity_build_in_normalizer.py` to run our TFT implementation with already tuned hyperparameters and let the TFT module take care of normalization
-
-
-`python3 neuralprophet_electricity.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization
-
-
-`python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.
+`python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.  
 
 
 [Download the electricity dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip).
