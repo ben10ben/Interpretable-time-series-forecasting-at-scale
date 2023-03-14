@@ -1,7 +1,6 @@
 # Evaluation of selected DL algorithmic methods for interpretable time series forecasting
 
-This repository provides code for replicating the experiments described in the paper 
-"Evaluation of selected DL algorithmic methods for interpretable time series forecasting".
+This repository provides code for replicating the experiments described in the paper. 
 
 It was only developed on Linux but should also run on other machines with minor changes.
 
