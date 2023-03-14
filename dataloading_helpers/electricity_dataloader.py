@@ -6,6 +6,7 @@ from pytorch_forecasting import TimeSeriesDataSet
 from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer, EncoderNormalizer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from dataloading_helpers import electricity_formatter 
+
 # set path in config.py
 txt_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.txt"
 csv_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.csv"
@@ -15,7 +16,7 @@ csv_file_normalized = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014_norm
 
 """
 prep_electricity_data function copied from google paper:
-https://github.com/google-research/google-research/blob/master/tft/script_download_data.py
+  https://github.com/google-research/google-research/blob/master/tft/script_download_data.py
 
 args:
   -txt_file: path to .txt document containg raw electricity dataset

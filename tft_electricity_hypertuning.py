@@ -49,7 +49,7 @@ if __name__ == '__main__':
   )
 
   # save study results - also we can resume tuning at a later point in time
-  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_hypertuning_electricity.pkl", "wb") as fout:
       pickle.dump(study, fout)
       
 

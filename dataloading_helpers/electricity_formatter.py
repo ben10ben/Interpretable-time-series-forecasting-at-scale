@@ -9,6 +9,7 @@ InputTypes = base.InputTypes
 
 
 class ElectricityFormatter(GenericDataFormatter):
+ 
     _column_definition = [
       ('id', DataTypes.REAL_VALUED, InputTypes.ID),
       ('hours_from_start', DataTypes.REAL_VALUED, InputTypes.TIME),
@@ -17,8 +18,21 @@ class ElectricityFormatter(GenericDataFormatter):
       ('day_of_week', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
       ('hours_from_start', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
       ('categorical_id', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
-  ]
+    ]
 
+  
+    """
+    taken from Google TFT Code: 
+      https://github.com/google-research/google-research/blob/833fee83507b97e0aaca431fe1d68544cf52d742/tft/data_formatters/electricity.py
+  
+    args:
+      -dataset
+      
+    output: 
+      -training dataset
+      -validation dataset
+      -test dataset
+    """
     def __init__(self):
         """Initialises formatter."""
 

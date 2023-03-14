@@ -34,11 +34,8 @@ if __name__ == '__main__':
   config_name_string = "electricity"
   model_dir = CONFIG_DICT["models"][config_name_string]
 
-
   electricity['time_idx'] = electricity['time_idx'].astype('int')
   electricity["categorical_id"] = electricity['categorical_id'].astype('string').astype("category")
-
-
 
   max_prediction_length = 24
   max_encoder_length = 168
@@ -54,28 +51,28 @@ if __name__ == '__main__':
   training_cutoff = electricity["time_idx"].max() - max_prediction_length
 
   training = TimeSeriesDataSet(
-      train[lambda x: x.time_idx <= training_cutoff],
-      time_idx="time_idx",
-      target="power_usage",
-      group_ids=["id"],
-      min_encoder_length=max_encoder_length,
-      max_encoder_length=max_encoder_length,
-      min_prediction_length=max_prediction_length,
-      max_prediction_length=max_prediction_length,
-      static_categoricals=["categorical_id"],
-      static_reals=[],
-      time_varying_known_categoricals=[],
-      time_varying_known_reals=["time_idx", "hour", "day_of_week"],
-      time_varying_unknown_categoricals=[],
-      time_varying_unknown_reals=["power_usage"],
-      #target_normalizer=TorchNormalizer(method="standard").fit(train["power_usage"]),
-      target_normalizer=GroupNormalizer(groups=["id"]),
-      scalers = {"time_idx" : StandardScaler(), "hour" : StandardScaler(), "day_of_week": StandardScaler()},
-      categorical_encoders= {'__group_id__id': NaNLabelEncoder(add_nan=False, warn=True), 'categorical_id': NaNLabelEncoder(add_nan=False, warn=True)},
-      add_relative_time_idx=False,
-      add_target_scales=True,
-      add_encoder_length=False,
-  #    lags= {"power_usage": [(24)]}
+    train[lambda x: x.time_idx <= training_cutoff],
+    time_idx="time_idx",
+    target="power_usage",
+    group_ids=["id"],
+    min_encoder_length=max_encoder_length,
+    max_encoder_length=max_encoder_length,
+    min_prediction_length=max_prediction_length,
+    max_prediction_length=max_prediction_length,
+    static_categoricals=["categorical_id"],
+    static_reals=[],
+    time_varying_known_categoricals=[],
+    time_varying_known_reals=["time_idx", "hour", "day_of_week"],
+    time_varying_unknown_categoricals=[],
+    time_varying_unknown_reals=["power_usage"],
+    target_normalizer=GroupNormalizer(groups=["id"]),
+    #target_normalizer = EncoderNormalizer().fit(train"),
+    #target_normalizer=TorchNormalizer(method="standard").fit(train["power_usage"]),
+    scalers = {"time_idx" : GroupNormalizer(groups=["id"]), "hour" : GroupNormalizer(groups=["id"]), "day_of_week": GroupNormalizer(groups=["id"])},
+    categorical_encoders= {'__group_id__id': NaNLabelEncoder(add_nan=False, warn=True), 'categorical_id': NaNLabelEncoder(add_nan=False, warn=True)},
+    add_relative_time_idx=False,
+    add_target_scales=True,
+    add_encoder_length=False,
   )
 
   # get parameters from train dataset to create val/test
@@ -93,7 +90,6 @@ if __name__ == '__main__':
   val_dataloader = validating.to_dataloader(train=False, batch_size=batch_size, num_workers=10, pin_memory=True)       
 
 
-
   if torch.cuda.is_available():
       accelerator = "gpu"
       devices = find_usable_cuda_devices(1)
@@ -102,15 +98,15 @@ if __name__ == '__main__':
       devices = None
 
   checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
-            dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
-            filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
+                          dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
+                          filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
 
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "writer_logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=3, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
 
-    # best parameters estimated by hypertuning and manually rounded
+  # best parameters estimated by hypertuning and manually rounded
   hyper_dict = {
                   'gradient_clip_val': 0.052, 
                   'hidden_size': 128, 
@@ -121,7 +117,7 @@ if __name__ == '__main__':
                }
 
   # uncomment to read hyperparamters from hyper-tuning script
-  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl")
+  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_hypertuning_electricity.pkl")
 
   trainer = pl.Trainer(
         default_root_dir=model_dir,
@@ -164,17 +160,17 @@ if __name__ == '__main__':
         tft,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
-        #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
+        #ckpt_path=""
   )
 
-    # safe model for later use
-  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model")
+  # safe model for later use
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model_build_in_normalizer")
 
   print("trainging done. Evaluating...")
 
   output = trainer.test(model=tft, dataloaders=test_dataloader , ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output_internal_scaling.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output_build_in_normalizer.pkl", "wb") as fout:
       pickle.dump(output, fout)
 
   print("Done.")

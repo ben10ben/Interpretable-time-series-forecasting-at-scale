@@ -48,6 +48,7 @@ if __name__ == '__main__':
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
   
   # best parameters estimated by hypertuning and manually rounded
+  # with those we achieved train_loss: 0.18, val_loss: 0.22 test_loss: 0.211, MAE/P50: 0.33
   hyper_dict = {
                 'gradient_clip_val': 0.052, 
                 'hidden_size': 128, 
@@ -58,7 +59,7 @@ if __name__ == '__main__':
                }
   
   # uncomment to read hyperparamters from hyper-tuning script
-  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "hypertuning_electricity.pkl")
+  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_hypertuning_electricity.pkl")
   
   trainer = pl.Trainer(
       default_root_dir=model_dir,
@@ -76,8 +77,7 @@ if __name__ == '__main__':
 
   print("Definining TFT...")
   
-  #warnings.filterwarnings("error") # supress UserWarning
-  
+ 
   tft = TemporalFusionTransformer.from_dataset(
       timeseries_dict["training_dataset"],
       learning_rate=hyper_dict["learning_rate"],
@@ -92,8 +92,7 @@ if __name__ == '__main__':
       optimizer="adam"
     )
 
-  #warnings.resetwarnings()
-  
+  # connect optimizer with trainer
   trainer.optimizer = Adam(tft.parameters(), lr=hyper_dict["learning_rate"])
   scheduler = ReduceLROnPlateau(trainer.optimizer, factor=0.2)  
   
@@ -105,17 +104,17 @@ if __name__ == '__main__':
       tft,
       train_dataloaders=timeseries_dict["train_dataloader"],
       val_dataloaders=timeseries_dict["val_dataloader"],
-      #ckpt="~/RT1_TFT/models/electricity/lightning_logs/version_28/checkpoints/"
+      #ckpt_path=""
   )
 
   # safe model for later use
-  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model")
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model_google_normalizer")
   
   print("trainging done. Evaluating...")
 
   output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output_google_normalizer.pkl", "wb") as fout:
       pickle.dump(output, fout)
 
   print("Done.")
