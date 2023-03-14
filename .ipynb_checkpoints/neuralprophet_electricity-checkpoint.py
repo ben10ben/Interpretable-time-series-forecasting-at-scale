@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
 
-    metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=10, batch_size=128, learning_rate=0.05, num_workers=15)
+    metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=10, batch_size=128, learning_rate=0.05, num_workers=30)
 
     #save model for later use
     with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_model.pkl", "wb") as f:
