@@ -1,4 +1,4 @@
-# RT1_TFT
+# Evaluation of selected DL algorithmic methods for interpretable time series forecasting
 
 This repository provides code for replicating the experiments described in the paper 
 "Evaluation of selected DL algorithmic methods for interpretable time series forecasting".
