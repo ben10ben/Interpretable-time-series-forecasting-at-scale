@@ -14,8 +14,8 @@ Run `bash setup.sh` to:
   -download the needed datasets  
   -setup a conda enviroment  
 
-
-
+  
+  
 With an activated virtual enviroment run:
 
 `python3 tft_electricity_hypertuning.py` to selecting optimal hyperparameters  
