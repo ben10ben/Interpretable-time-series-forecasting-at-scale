@@ -82,7 +82,7 @@ if __name__ == '__main__':
   test_boundary=1339
   index = electricity['days_from_start']
 
-  train = electricity.loc[(index >= 1250) & (index < test_boundary)]
+  train = electricity.loc[(index >= 1100) & (index < test_boundary)]
   test = electricity.loc[index >= test_boundary]
 
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
   df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
 
-  metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=10, batch_size=128, learning_rate=0.05, num_workers=30)
+  metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=20, batch_size=64, learning_rate=0.05, num_workers=30)
 
   #save model for later use
   with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_model.pkl", "wb") as f:
@@ -113,3 +113,6 @@ if __name__ == '__main__':
   future = np_model.make_future_dataframe(test, n_historic_predictions=True)
 
   forecast = np_model.predict(future)
+  
+  print("Trainign metrics: ", metrics)
+  print(forecast)
