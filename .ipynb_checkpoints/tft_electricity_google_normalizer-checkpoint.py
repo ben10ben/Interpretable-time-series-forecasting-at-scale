@@ -27,7 +27,7 @@ if __name__ == '__main__':
   timeseries_dict =  electricity
   config_name_string = "electricity"
   parameters = []
-  model_dir = CONFIG_DICT["models"][config_name_string]
+  model_dir = CONFIG_DICT["models"][config_name_string] / "tft"
   
   print("Checking for device...")
 
@@ -39,13 +39,13 @@ if __name__ == '__main__':
       devices = 'cpu'
 
   checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
-          dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
+          dirpath=CONFIG_DICT["models"]["electricity"] / "tft" / "checkpoint_callback_logs",
           filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
   
-  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "writer_logs" )
+  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "tft" /  "writer_logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=3, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
-  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
+  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "tft") 
   
   # best parameters estimated by hypertuning and manually rounded
   # with those we achieved train_loss: 0.18, val_loss: 0.22 test_loss: 0.211, MAE/P50: 0.33
@@ -108,13 +108,13 @@ if __name__ == '__main__':
   )
 
   # safe model for later use
-  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model_google_normalizer")
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft" / "tft_model_google_normalizer")
   
   print("trainging done. Evaluating...")
 
   output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output_google_normalizer.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer.pkl", "wb") as fout:
       pickle.dump(output, fout)
 
   print("Done.")

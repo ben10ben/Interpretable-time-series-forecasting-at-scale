@@ -1,22 +1,31 @@
 # RT1_TFT
 
-Repo for colaborative work of Benedikt Rein, Yulia and Alican
+This repository provides code for replicating the experiments described in the paper 
+"Evaluation of selected DL algorithmic methods for interpretable time series forecasting".
+
+It was only developed on Linux but should also run on other machines with minor changes.
+
+Read the Electricity_EDA_Eval.ipynp alongside the paper.
+In the notebook you can find some exploratory analysis of the electricity dataset and we present 
+our best performing NeuralProphet and TemporalFusinTransformer models alongside our baseline.
 
 
-This repository provides the code, nessesary for the linked paper.
+Run 'bash setup.sh' to:
+  -download the needed datasets
+  -setup a conda enviroment
 
-It is taking the google paper about Temporal Fusion Transformer and adds the perspective of transfer learning for easy and more diffictult data inputs.
 
+With an activated virtual enviroment:
 
+'python3 tft_electricity_hypertuning.py' for selecting optimal hyperparameters
 
-make sure you have the datasets in the coresponding data folders
+'python3 tft_electricity_google_normalizer.py' to run our TFT implementation with already tuned hyperparameters and copied normalization from the TFT paper
 
-electricity dataset:
+'python3 ftf_electricity_build_in_normalizer.py' to run our TFT implementation with already tuned hyperparameters and let the TFT module take care of normalization
+ 
+'python3 neuralprophet_electricity.py' to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization
+
+'python3 arima_electricity.py' to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.
+ 
+Download link for electricity dataset:
 https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
-
-retail dataset: https://www.kaggle.com/c/favorita-grocery-sales-forecasting/data?select=oil.csv.7z
-
-walmart dataset:
-
-stocks dataset: last 5 years
-https://finance.yahoo.com/quote/%5EGDAXI/history?period1=1510963200&period2=1668729600&interval=1d&filter=history&frequency=1d&includeAdjustedClose=true

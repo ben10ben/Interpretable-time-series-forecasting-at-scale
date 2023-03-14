@@ -6,6 +6,7 @@ from pytorch_forecasting import TimeSeriesDataSet
 from pytorch_forecasting.data.encoders import GroupNormalizer, TorchNormalizer, EncoderNormalizer
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from dataloading_helpers import electricity_formatter 
+
 # set path in config.py
 txt_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.txt"
 csv_file = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014.csv"
@@ -15,7 +16,7 @@ csv_file_normalized = CONFIG_DICT["datasets"]["electricity"] / "LD2011_2014_norm
 
 """
 prep_electricity_data function copied from google paper:
-https://github.com/google-research/google-research/blob/master/tft/script_download_data.py
+  https://github.com/google-research/google-research/blob/master/tft/script_download_data.py
 
 args:
   -txt_file: path to .txt document containg raw electricity dataset
@@ -101,7 +102,7 @@ def create_electricity_timeseries_tft():
    
     training = TimeSeriesDataSet(
       train[lambda x: x.time_idx <= training_cutoff],
-      #train, # find out which case is the correct/better one
+      #train, # find out which case is the correct/better one -> better val_loss with cutoff 
       time_idx="time_idx",
       target="power_usage",
       group_ids=["id"],
@@ -114,7 +115,7 @@ def create_electricity_timeseries_tft():
       time_varying_known_categoricals=[],
       time_varying_known_reals=["time_idx", "hour", "day_of_week"],
       time_varying_unknown_categoricals=[],
-      time_varying_unknown_reals=[],
+      time_varying_unknown_reals=["power_usage"],
       target_normalizer=None,
       categorical_encoders=[],
       add_relative_time_idx=False,

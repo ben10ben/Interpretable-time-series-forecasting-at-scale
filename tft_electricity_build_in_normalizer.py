@@ -32,7 +32,7 @@ if __name__ == '__main__':
   electricity = pd.read_csv(csv_file)
 
   config_name_string = "electricity"
-  model_dir = CONFIG_DICT["models"][config_name_string]
+  model_dir = CONFIG_DICT["models"][config_name_string] / "tft_auto_norm"
 
   electricity['time_idx'] = electricity['time_idx'].astype('int')
   electricity["categorical_id"] = electricity['categorical_id'].astype('string').astype("category")
@@ -98,13 +98,13 @@ if __name__ == '__main__':
       devices = None
 
   checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
-                          dirpath=CONFIG_DICT["models"]["electricity"] / "checkpoint_callback_logs",
+                          dirpath=CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" / "checkpoint_callback_logs",
                           filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
 
-  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "writer_logs" )
+  writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" / "writer_logs" )
   early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=3, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
-  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"]) 
+  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" ) 
 
   # best parameters estimated by hypertuning and manually rounded
   hyper_dict = {
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                }
 
   # uncomment to read hyperparamters from hyper-tuning script
-  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_hypertuning_electricity.pkl")
+  #hyper_dict = pd.read_pickle(CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" / "tuning_logs" / "tft_hypertuning_electricity.pkl")
 
   trainer = pl.Trainer(
         default_root_dir=model_dir,
@@ -164,13 +164,13 @@ if __name__ == '__main__':
   )
 
   # safe model for later use
-  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_model_build_in_normalizer")
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" / "tft_model_build_in_normalizer")
 
   print("trainging done. Evaluating...")
 
   output = trainer.test(model=tft, dataloaders=test_dataloader , ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tuning_logs" / "tft_electricity_test_output_build_in_normalizer.pkl", "wb") as fout:
+  with open(CONFIG_DICT["models"]["electricity"] /  "tft_auto_norm" / "tuning_logs" / "tft_electricity_test_output_build_in_normalizer.pkl", "wb") as fout:
       pickle.dump(output, fout)
 
   print("Done.")

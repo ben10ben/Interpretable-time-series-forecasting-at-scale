@@ -3,8 +3,8 @@ pytorch-forecasting[mqf2]
 pytorch-lightning
 wget
 pyunpack
-neuralprophet[live]
-neuralprophet
+neuralprophet[live]==0.5.1
+#neuralprophet==0.5.1
 optuna
 pandas
 numpy

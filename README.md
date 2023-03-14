@@ -1,40 +1,31 @@
 # RT1_TFT
 
-Repo for colaborative work of Benedikt Rein, Yulia and Alican
+This repository provides code for replicating the experiments described in the paper 
+"Evaluation of selected DL algorithmic methods for interpretable time series forecasting".
+
+It was only developed on Linux but should also run on other machines with minor changes.
+
+Read the Electricity_EDA_Eval.ipynp alongside the paper.
+In the notebook you can find some exploratory analysis of the electricity dataset and we present 
+our best performing NeuralProphet and TemporalFusinTransformer models alongside our baseline.
 
 
-This repository provides the code, nessesary for the linked paper.
-
-We are trying to reproduce the performance of the TFT model, shown in the Google paper.
-
-Once a MAE is reached that is less than a magnitude higher than this of the Google paper, we will start implementing other statistical or ML models, once those perform in a comparable magnitude we will implement a third dataset.
-
-
-Run the setup.sh scrit to:
-  -create needed directory structure
+Run 'bash setup.sh' to:
   -download the needed datasets
   -setup a conda enviroment
-  -run a script for each dataset
-  -compare the performance of the models
-  
 
-electricity dataset:
+
+With an activated virtual enviroment:
+
+'python3 tft_electricity_hypertuning.py' for selecting optimal hyperparameters
+
+'python3 tft_electricity_google_normalizer.py' to run our TFT implementation with already tuned hyperparameters and copied normalization from the TFT paper
+
+'python3 ftf_electricity_build_in_normalizer.py' to run our TFT implementation with already tuned hyperparameters and let the TFT module take care of normalization
+ 
+'python3 neuralprophet_electricity.py' to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization
+
+'python3 arima_electricity.py' to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.
+ 
+Download link for electricity dataset:
 https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
-
-retail dataset: https://storage.googleapis.com/kaggle-competitions-data/kaggle-v2/7391/44328/bundle/archive.zip?GoogleAccessId=web-data@kaggle-161607.iam.gserviceaccount.com&Expires=1676046400&Signature=sErgEXSRVP6IRWbBu3Mmu68le1PSV2gv2lRR9Ys55tfQaxPVG4Bty0fHBIrTyhh95nZWyqxR%2Fo1pr13Y5jPum2zpB3QhgCDlW1HYLEcSTSxvpj%2FeAvhSTHMv%2ByvcFaA3sPeu1WSX7S6Y9lFQtM2%2BGeA9GCI%2Bf3lPXbghpGXRqfvhVJS5%2BGgUzIuq1GPwUAiFDmDOEPiWMxCbPavFSFfBILXbgU1PmjWsFcW9EMQNGMeATjg5tgw%2FrFUpiSCl3kquaUhzJJoJLwBnPzG2taAo%2BX8Fqm0tBBkHuZFxcFC29PXCxY4vhseA6wHbxiZI%2BTVVymqbFDv53k3%2BWgDkW%2Fe81g%3D%3D&response-content-disposition=attachment%3B+filename%3Dfavorita-grocery-sales-forecasting.zip
-
-
-
-
-
-
-
-prelimenary code layout:
-
-run setup.py to create venv, folderstructure, download datasets
-
-use notebooks for EDA, loading trained models for validation run and visualization / explainability
-
-use model_dataset_hypertuning.py to find optimal hyperparameters for the model-dataset combination
-
-use model_dataset.py to make full training run - best model can be loaded into notebook and used exploratory
