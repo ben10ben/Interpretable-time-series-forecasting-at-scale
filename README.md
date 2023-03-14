@@ -11,8 +11,10 @@ our best performing NeuralProphet and TemporalFusinTransformer models alongside 
 
 
 Run `bash setup.sh` to:
+
   -download the needed datasets
   -setup a conda enviroment
+
 
 
 With an activated virtual enviroment run:
