@@ -34,5 +34,4 @@ With an activated virtual enviroment run:
 `python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.
 
 
-Download link for electricity dataset:
-https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
+[Download the electricity dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip).
