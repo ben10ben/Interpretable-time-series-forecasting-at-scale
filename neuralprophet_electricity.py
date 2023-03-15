@@ -30,7 +30,7 @@ if __name__ == '__main__':
           daily_seasonality = True,
           learning_rate = 0.05,
           loss_func = "MSE",
-          quantiles = [0.1, 0.5, 0.9]   
+          quantiles = [0.1, 0.5, 0.9],   
           normalize="standardize",
       )
 
