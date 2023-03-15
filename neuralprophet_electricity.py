@@ -7,8 +7,16 @@ if __name__ == '__main__':
   from neuralprophet import set_random_seed
   from config import *
   import pickle
+  from pytorch_lightning.loggers import TensorBoardLogger
+  import pytorch_lightning as pl
 
+  set_log_level("ERROR")
   print("Defining functions.")
+  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "neuralprophet") 
+  trainer = pl.Trainer(default_root_dir=CONFIG_DICT["models"]["electricity"] / "neuralprophet",
+                       logger=logger
+                      )
+  
   
   def get_model():
       np_model = NeuralProphet(
@@ -23,6 +31,7 @@ if __name__ == '__main__':
           learning_rate = 0.05,
           loss_func = "MSE",
           quantiles = [0.1, 0.5, 0.9]   
+          normalize="standardize",
       )
 
       np_model = np_model.highlight_nth_step_ahead_of_each_forecast(step_number = np_model.n_forecasts)
