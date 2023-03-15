@@ -5,6 +5,7 @@ if __name__ == '__main__':
   import time
   from neuralprophet import NeuralProphet, set_log_level, set_random_seed, save
   from config import *
+  import contextlib
 
   set_log_level("ERROR")
   print("Defining functions.")
@@ -102,9 +103,9 @@ if __name__ == '__main__':
   print("Loading and fitting model. Warning: No dependable print-outs during training.")
   np_model = get_model()
 
-  df_train, df_val = split_train_test(train, np_model, num_id=5) #num_id=0 -> all ids
+  df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
 
-  metrics, model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=1, batch_size=64, learning_rate=0.05, num_workers=30)
+  metrics, model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=20, batch_size=64, learning_rate=0.05, num_workers=30)
 
   print("Training done. Saving model.")
 
