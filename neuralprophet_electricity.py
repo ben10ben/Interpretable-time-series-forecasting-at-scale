@@ -3,19 +3,11 @@ if __name__ == '__main__':
   import pandas as pd
   import matplotlib.pyplot as plt
   import time
-  from neuralprophet import NeuralProphet, set_log_level
-  from neuralprophet import set_random_seed
+  from neuralprophet import NeuralProphet, set_log_level, set_random_seed, save
   from config import *
-  import pickle
-  from pytorch_lightning.loggers import TensorBoardLogger
-  import pytorch_lightning as pl
 
   set_log_level("ERROR")
   print("Defining functions.")
-  logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "neuralprophet") 
-  trainer = pl.Trainer(default_root_dir=CONFIG_DICT["models"]["electricity"] / "neuralprophet",
-                       logger=logger
-                      )
   
   
   def get_model():
@@ -107,25 +99,26 @@ if __name__ == '__main__':
 
 
   # loading and fitting model
-  print("Loading and fitting model.")
+  print("Loading and fitting model. Warning: No dependable print-outs during training.")
   np_model = get_model()
 
-  df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
+  df_train, df_val = split_train_test(train, np_model, num_id=5) #num_id=0 -> all ids
 
-  metrics, np_model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=20, batch_size=64, learning_rate=0.05, num_workers=30)
+  metrics, model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=1, batch_size=64, learning_rate=0.05, num_workers=30)
 
-  #save model for later use
-  with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_model.pkl", "wb") as f:
-      pickle.dump(np_model, f)
+  print("Training done. Saving model.")
 
-  # create a future data frame consisting of the time steps into the future that we need to forecast
-  future = np_model.make_future_dataframe(test, n_historic_predictions=True)
-
-  forecast = np_model.predict(future)
-  
-  with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_predictions.pkl", "wb") as f:
-    pickle.dump(forecast, f)
+  # safe model for later use
+  model_path = CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_model.np"
+  save(model, model_path)
   
   
-  print("Trainign metrics: ", metrics)
-  print(forecast)
+  print("Predicting on test dataset.")
+  with contextlib.redirect_stdout(None):
+    predictions = model.predict(test)
+    
+  
+  print("Saving predictions to file: np_predictions.csv")
+  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_predictions.csv")
+    
+  
