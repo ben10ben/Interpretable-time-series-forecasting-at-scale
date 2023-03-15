@@ -114,5 +114,9 @@ if __name__ == '__main__':
 
   forecast = np_model.predict(future)
   
+  with open(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "neuralprophet_predictions.pkl", "wb") as f:
+    pickle.dump(forecast, f)
+  
+  
   print("Trainign metrics: ", metrics)
   print(forecast)
