@@ -3,7 +3,7 @@ if __name__ == '__main__':
   import pandas as pd
   import matplotlib.pyplot as plt
   import time
-  from neuralprophet import NeuralProphet, set_log_level, set_random_seed, save
+  from neuralprophet import NeuralProphet, set_log_level, set_random_seed, save, load
   from config import *
   import contextlib
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
           growth = "linear",                    # no trend
           trend_global_local = "global",
           season_global_local = "global",                
-          n_lags = 7*24,                      # autoregressor on last 24h x 7 days
+          n_lags = 6*24,                      # autoregressor on last 24h x 6 days
           n_forecasts = 24,                   # forecast horizon
           yearly_seasonality = True,
           weekly_seasonality = True,
@@ -83,43 +83,38 @@ if __name__ == '__main__':
 
   test_boundary=1339
   index = electricity['days_from_start']
-
   train = electricity.loc[(index >= 1100) & (index < test_boundary)]
-  test = electricity.loc[index >= test_boundary]
-
+  test = electricity.loc[(index >= test_boundary)]
 
   # specify input variables
   input_columns = ["ID", "y","ds"]                    # index + target + datetime
-
   future_regressors = []
   lagged_regressors = ['hour', 'day', 'day_of_week', 'month'] 
   events = [] 
 
   train = train[input_columns + lagged_regressors]    # with regressors
   test = test[input_columns + lagged_regressors] 
-
-
+  
   # loading and fitting model
   print("Loading and fitting model. Warning: No dependable print-outs during training.")
-  np_model = get_model()
+  #np_model = get_model()
 
-  df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
+  #df_train, df_val = split_train_test(train, np_model, num_id=0) #num_id=0 -> all ids
 
-  metrics, model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=20, batch_size=64, learning_rate=0.05, num_workers=30)
+  #metrics, model = fit_model(np_model, df_train=df_train, df_val=df_val, num_epochs=20, batch_size=64, learning_rate=0.05, num_workers=30)
 
   print("Training done. Saving model.")
 
   # safe model for later use
   model_path = CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_model.np"
-  save(model, model_path)
-  
-  
+  #save(model, model_path)
+  model = load(model_path)
+
   print("Predicting on test dataset.")
-  with contextlib.redirect_stdout(None):
-    predictions = model.predict(test)
+  predictions = model.predict(test)
     
-  
   print("Saving predictions to file: np_predictions.csv")
   predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_predictions.csv")
-    
-  
+  test_output = model.test(test)
+      
+  test_output.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_test_output.csv")
