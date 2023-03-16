@@ -63,7 +63,7 @@ if __name__ == '__main__':
   
   trainer = pl.Trainer(
       default_root_dir=model_dir,
-      max_epochs=10,
+      max_epochs=8,
       devices=devices,
       accelerator=accelerator,
       enable_model_summary=True,
@@ -88,7 +88,7 @@ if __name__ == '__main__':
       output_size= 3,
       loss=QuantileLoss([0.1, 0.5, 0.9]),
       log_interval=1,
-      reduce_on_plateau_patience=4,
+      reduce_on_plateau_patience=3,
       optimizer="adam"
     )
 
@@ -114,8 +114,8 @@ if __name__ == '__main__':
 
   output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer.pkl", "wb") as fout:
-      pickle.dump(output, fout)
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer.pkl", 'wb') as f:
+    pickle.dump(output, f)
 
   print("Done.")
     
