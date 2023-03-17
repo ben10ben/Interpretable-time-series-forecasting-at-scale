@@ -49,8 +49,8 @@ if __name__ == '__main__':
         normalize="off"
        )
     
-  model = model.highlight_nth_step_ahead_of_each_forecast(step_number = model.n_forecasts)
-  model = model.add_lagged_regressor(names = lagged_regressors) 
+  np_model = np_model.highlight_nth_step_ahead_of_each_forecast(step_number = np_model.n_forecasts)
+  np_model = np_model.add_lagged_regressor(names = lagged_regressors) 
   
     
   metrics = np_model.fit(
