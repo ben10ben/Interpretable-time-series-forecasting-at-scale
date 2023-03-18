@@ -89,7 +89,7 @@ def create_electricity_timeseries_tft():
     electricity['time_idx'] = electricity['time_idx'].astype('int')
 
     standardizer = electricity_formatter.ElectricityFormatter()
-    train, test, validation = standardizer.split_data(df=electricity)
+    train, validation, test = standardizer.split_data(df=electricity)
 
     train["categorical_id"] = train['categorical_id'].astype('string').astype("category")
     test["categorical_id"] = test['categorical_id'].astype('string').astype("category")
