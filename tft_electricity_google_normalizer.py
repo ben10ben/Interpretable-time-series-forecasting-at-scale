@@ -48,7 +48,7 @@ if __name__ == '__main__':
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "tft") 
   
   # best parameters estimated by hypertuning and manually rounded
-  # with those we achieved train_loss: 0.18, val_loss: 0.22 test_loss: 0.211, MAE/P50: 0.33
+  # with those we achieved train_loss: 0.18, val_loss: 0.22 test_loss: 0.211, MAE: 0.33
   hyper_dict = {
                 'gradient_clip_val': 0.052, 
                 'hidden_size': 128, 
@@ -112,10 +112,19 @@ if __name__ == '__main__':
   
   print("trainging done. Evaluating...")
 
+  predictions = trainer.predict(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best", return_predictions=True)
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_predictions_google_normalizer.pkl", 'wb') as f:
+    pickle.dump(predictions, f)
+    
+    
   output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
   with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer.pkl", 'wb') as f:
     pickle.dump(output, f)
 
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_google_normalizer.pkl", 'wb') as f:
+    pickle.dump(timeseries_dict["standardizer"], f)
+  
+    
   print("Done.")
     

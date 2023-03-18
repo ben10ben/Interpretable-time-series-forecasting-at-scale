@@ -54,6 +54,17 @@ class ElectricityFormatter(GenericDataFormatter):
         self.set_scalers(train)
 
         return (self.transform_inputs(data) for data in [train, valid, test])
+      
+      
+    def split_data_neural_prophet(self, df, valid_boundary=1315, test_boundary=1339):
+        index = df['days_from_start']
+        #maximum = df["days_from_start"].max()
+        train = df.loc[index < valid_boundary]
+        valid = df.loc[(index >= valid_boundary - 7) & (index < test_boundary)]
+        test = df.loc[index > test_boundary]
+        self.set_scalers(train)
+
+        return (self.transform_inputs(data) for data in [train, valid, test])
 
     def set_scalers(self, df):
         column_definitions = self.get_column_definition()

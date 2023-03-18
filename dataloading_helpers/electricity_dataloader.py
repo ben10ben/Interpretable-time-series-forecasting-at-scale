@@ -113,11 +113,11 @@ def create_electricity_timeseries_tft():
       static_categoricals=["categorical_id"],
       static_reals=[],
       time_varying_known_categoricals=[],
-      time_varying_known_reals=["time_idx", "hour", "day_of_week"],
+      time_varying_known_reals=["time_idx", "hour", "day_of_week", "month"],
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=["power_usage"],
       target_normalizer=None,
-      categorical_encoders=[],
+      categorical_encoders=None,
       add_relative_time_idx=False,
       add_target_scales=False,
       add_encoder_length=False,
@@ -139,11 +139,12 @@ def create_electricity_timeseries_tft():
   
     # output data as dict for easier modularity
     return {"training_dataset": training, 
-          "train_dataloader": train_dataloader,
-          "val_dataloader": val_dataloader, 
-          "validation_dataset": validating,
-          "test_dataset": testing,
-          "test_dataloader": test_dataloader,
+            "train_dataloader": train_dataloader,
+            "val_dataloader": val_dataloader, 
+            "validation_dataset": validating,
+            "test_dataset": testing,
+            "test_dataloader": test_dataloader,
+            "standardizer": standardizer,
            }
   
   
@@ -156,13 +157,14 @@ def create_electricity_timeseries_np():
     electricity['time_idx'] = electricity['time_idx'].astype('int')
 
     standardizer = electricity_formatter.ElectricityFormatter()
-    train, test, validation = standardizer.split_data(df=electricity)
+    train, validation, test = standardizer.split_data(df=electricity)
+    #train, validation, test = standardizer.split_data_neural_prophet(df=electricity) #works?
 
     train["categorical_id"] = train['categorical_id'].astype('string').astype("category")
     test["categorical_id"] = test['categorical_id'].astype('string').astype("category")
     validation["categorical_id"] = validation['categorical_id'].astype('string').astype("category") 
     
-    return train, test, validation
+    return train, validation, test
   
   
 def create_electricity_dataframe_not_normalized():
