@@ -117,7 +117,7 @@ def create_electricity_timeseries_tft():
       time_varying_unknown_categoricals=[],
       time_varying_unknown_reals=["power_usage"],
       target_normalizer=None,
-      categorical_encoders=None,
+      categorical_encoders=[],
       add_relative_time_idx=False,
       add_target_scales=False,
       add_encoder_length=False,
