@@ -100,12 +100,12 @@ if __name__ == '__main__':
   print("Training model...")
   
   # fit network
-  trainer.fit(
-      tft,
-      train_dataloaders=timeseries_dict["train_dataloader"],
-      val_dataloaders=timeseries_dict["val_dataloader"],
-      #ckpt_path=""
-  )
+  #trainer.fit(
+  #    tft,
+  #    train_dataloaders=timeseries_dict["train_dataloader"],
+  #    val_dataloaders=timeseries_dict["val_dataloader"],
+  #    #ckpt_path=""
+  #)
 
   # safe model for later use
   torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft" / "tft_model_google_normalizer")

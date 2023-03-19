@@ -12,9 +12,6 @@ la -if __name__ == '__main__':
   
   
   # run this for using googles normalization
-
-  # run this for using googles normalization
-
   train, val, test = electricity_dataloader.create_electricity_timeseries_np()
 
   train['date'] =  pd.to_datetime(train['date'], format='%Y-%m-%d %H:%M:%S.%f')
