@@ -20,7 +20,8 @@ if __name__ == '__main__':
 
   test['date'] =  pd.to_datetime(test['date'], format='%Y-%m-%d %H:%M:%S.%f')
   test.rename(columns={"power_usage": "y", "date": "ds", "id": "ID"}, inplace = True)
-  test = test[test["ds"] >= "2014-09-01"]
+  #test = test[test["ds"] >= "2014-09-01"]
+  test = test[test["ds"] >= "2014-08-31"] #use this for 7 days lookback
 
 
   val['date'] =  pd.to_datetime(val['date'], format='%Y-%m-%d %H:%M:%S.%f')
@@ -49,12 +50,12 @@ if __name__ == '__main__':
           growth = "off",                    # no trend
           trend_global_local = "global",
           season_global_local = "global",                
-          n_lags = 6*24,                      # autoregressor on last 24h x 7 days
+          n_lags = 7*24,                      # autoregressor on last 24h x 7 days
           n_forecasts = 24,                   # forecast horizon
           yearly_seasonality = True,
           weekly_seasonality = True,
           daily_seasonality = True,
-          learning_rate = 0.1,
+          learning_rate = 0.05,
           loss_func = "MSE",
           quantiles = [0.1, 0.5, 0.9],
           normalize="off"
@@ -69,23 +70,23 @@ if __name__ == '__main__':
           validation_df = df_val,
           freq='H', 
           progress="print",
-          num_workers = 50,
+          num_workers = 40,
           early_stopping=False,
-          learning_rate=0.1,
-          epochs=10,
+          learning_rate=0.05,
+          epochs=30,
           batch_size=64
         )                      
 
   
   print("Training done. Saving metrics.")
-  metrics.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_metrics_google.csv")
+  metrics.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_metrics_week.csv")
 
   print("Predicting on test dataset.")
 
   predictions = np_model.predict(test)
     
-  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_google.csv")
+  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_week.csv")
   
   predictions_decomposed = np_model.predict(test, decompose=True)
   
-  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_google_decomposed.csv")
+  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_week_decomposed.csv")
