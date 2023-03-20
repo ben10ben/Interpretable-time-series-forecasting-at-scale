@@ -110,7 +110,7 @@ if __name__ == '__main__':
   # safe model for later use
   torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft" / "tft_model_google_normalizer_2")
   
-  print("trainging done. Evaluating...")
+  print("Trainging is done and model is saved.")
 
   predictions = trainer.predict(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best", return_predictions=True)
   with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_predictions_google_normalizer_2.pkl", 'wb') as f:
@@ -124,7 +124,3 @@ if __name__ == '__main__':
 
   with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_google_normalizer_2.pkl", 'wb') as f:
     pickle.dump(timeseries_dict["standardizer"], f)
-  
-    
-  print("Done.")
-    
