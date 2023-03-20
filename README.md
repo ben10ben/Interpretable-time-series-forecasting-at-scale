@@ -26,7 +26,9 @@ With an activated virtual enviroment run:
 
 `python3 tft_electricity_build_in_normalizer.py` to run our TFT implementation with already tuned hyperparameters and let the TFT module take care of normalization  
 
-`python3 neuralprophet_electricity.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
+`python3 neuralprophet_electricity_build_in_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
+
+`python3 neuralprophet_electricity_google_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
 
 `python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.  
 
