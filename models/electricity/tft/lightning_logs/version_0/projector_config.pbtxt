@@ -1,5 +1,5 @@
 embeddings {
-  tensor_name: "categorical_id:144075"
-  metadata_path: "144075/categorical_id/metadata.tsv"
-  tensor_path: "144075/categorical_id/tensors.tsv"
+  tensor_name: "categorical_id:201705"
+  metadata_path: "201705/categorical_id/metadata.tsv"
+  tensor_path: "201705/categorical_id/tensors.tsv"
 }
