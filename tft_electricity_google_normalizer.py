@@ -38,12 +38,12 @@ if __name__ == '__main__':
       accelerator = None
       devices = 'cpu'
 
-  checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val_loss", mode="min",
+  checkpoint_callback = ModelCheckpoint(save_top_k=6, monitor="val_loss", mode="min",
           dirpath=CONFIG_DICT["models"]["electricity"] / "tft" / "checkpoint_callback_logs",
-          filename="sample-mnist-{epoch:02d}-{val_loss:.2f}")
+          filename="sample-mnist-{epoch:02d}-{val_loss:.3f}")
   
   writer = SummaryWriter(log_dir = CONFIG_DICT["models"]["electricity"] / "tft" /  "writer_logs" )
-  early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=3, verbose=False, mode="min")
+  early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=6, verbose=False, mode="min")
   lr_logger = LearningRateMonitor(logging_interval='epoch') 
   logger = TensorBoardLogger(CONFIG_DICT["models"]["electricity"] / "tft") 
   
@@ -99,30 +99,30 @@ if __name__ == '__main__':
   print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
   print("Training model...")
   
-  # fit network
-  #trainer.fit(
-  #    tft,
-  #    train_dataloaders=timeseries_dict["train_dataloader"],
-  #    val_dataloaders=timeseries_dict["val_dataloader"],
-  #    #ckpt_path=""
-  #)
+   fit network
+  trainer.fit(
+      tft,
+      train_dataloaders=timeseries_dict["train_dataloader"],
+      val_dataloaders=timeseries_dict["val_dataloader"],
+      #ckpt_path=""
+  )
 
   # safe model for later use
-  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft" / "tft_model_google_normalizer")
+  torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft" / "tft_model_google_normalizer_2")
   
   print("trainging done. Evaluating...")
 
   predictions = trainer.predict(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best", return_predictions=True)
-  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_predictions_google_normalizer.pkl", 'wb') as f:
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_predictions_google_normalizer_2.pkl", 'wb') as f:
     pickle.dump(predictions, f)
     
     
   output = trainer.test(model=tft, dataloaders=electricity["test_dataloader"], ckpt_path="best")
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer.pkl", 'wb') as f:
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_test_output_google_normalizer_2.pkl", 'wb') as f:
     pickle.dump(output, f)
 
-  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_google_normalizer.pkl", 'wb') as f:
+  with open(CONFIG_DICT["models"]["electricity"] / "tft" / "tft_electricity_google_normalizer_2.pkl", 'wb') as f:
     pickle.dump(timeseries_dict["standardizer"], f)
   
     

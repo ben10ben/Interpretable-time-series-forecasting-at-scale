@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
   
   print("Training done. Saving model.")
-  metrics.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_training_metrics.csv")
+  metrics.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_metrics_real.csv")
 
   print("Predicting on test dataset.")
 
@@ -106,12 +106,7 @@ if __name__ == '__main__':
   
   print("Saving predictions to file: np_predictions_2.csv")
   
-  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_predictions_5.csv")
-  predictions.to_pickle(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_predictions_5.pkl")
+  predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_real.csv")
 
-  # safe model for later use
-  model_path = CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_model.np"
-  save(np_model, model_path)
-  
     
   

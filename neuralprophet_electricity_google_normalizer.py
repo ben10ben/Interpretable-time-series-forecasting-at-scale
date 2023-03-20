@@ -1,4 +1,4 @@
-la -if __name__ == '__main__': 
+if __name__ == '__main__': 
   print("Importing modules...")
   import pandas as pd
   import matplotlib.pyplot as plt
@@ -10,8 +10,9 @@ la -if __name__ == '__main__':
   set_log_level("ERROR")
   print("Defining functions.")
   
-  
+  # we did not find the correct way for changing output_dict, thus lightning_logs are in the main folder
   # run this for using googles normalization
+  # reshape data to needed input
   train, val, test = electricity_dataloader.create_electricity_timeseries_np()
 
   train['date'] =  pd.to_datetime(train['date'], format='%Y-%m-%d %H:%M:%S.%f')
@@ -32,10 +33,12 @@ la -if __name__ == '__main__':
   lagged_regressors = ['hour', 'day', 'day_of_week', 'month'] 
   events = [] 
 
+ 
   df_train = train[input_columns + lagged_regressors]    # with regressors
   test = test[input_columns + lagged_regressors] 
   df_val = val[input_columns + lagged_regressors] 
 
+  # uncomment to use timeseries up till num_id
   #num_id = 1
   #df_train = df_train[df_train.ID.isin(df_train.ID.unique()[:num_id])]
   #test = test[test.ID.isin(test.ID.unique()[:num_id])]

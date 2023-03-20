@@ -19,9 +19,6 @@ import os
 import pathlib
 
 import numpy as np
-#import tensorflow as tf
-#from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
-
 
 # Generic.
 def get_single_col_by_input_type(input_type, column_definition):
