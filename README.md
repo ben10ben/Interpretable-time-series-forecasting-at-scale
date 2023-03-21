@@ -1,10 +1,16 @@
 # Evaluation of selected DL algorithmic methods for interpretable time series forecasting
 by Alican Gündogdu, Benedikt Rein and Yuliya Vandysheva
 
+Humboldt-University of Berlin
+Chair of Information Systems
+Course: Information Systems
+Professor: Stephan Lessmann
+
 The main goal of this research is to reproduce results shown in the paper
 [Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf).
 
 This repository provides code for replicating the experiments described in our paper. 
+
 
 It was developed on Linux but should also run on other machines with minor changes.
 
