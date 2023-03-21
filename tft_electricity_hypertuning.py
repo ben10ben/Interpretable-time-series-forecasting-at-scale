@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
 
   if is_available():
-      accelerator = 'gpu'
-      devices = [0]
+      accelerator = "gpu"
+      devices = find_usable_cuda_devices(1)
   else:
       accelerator = "cpu"
       devices = None
@@ -34,7 +34,7 @@ if __name__ == '__main__':
   study = optimize_hyperparameters(
     electricity["train_dataloader"],
     electricity["val_dataloader"],
-    model_path=CONFIG_DICT["models"]["electricity"] / "tuning_logs",
+    model_path=CONFIG_DICT["models"]["electricity"] / "tft" / "tuning_logs",
     n_trials=100,
     max_epochs=20,
     gradient_clip_val_range=(0.01, 0.2),

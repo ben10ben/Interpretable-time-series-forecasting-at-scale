@@ -16,7 +16,7 @@ if __name__ == '__main__':
           growth = "linear",                    # no trend
           trend_global_local = "global",
           season_global_local = "global",                
-          n_lags = 6*24,                      # autoregressor on last 24h x 7 days
+          n_lags = 7*24,                      # autoregressor on last 24h x 7 days
           n_forecasts = 24,                   # forecast horizon
           yearly_seasonality = True,
           weekly_seasonality = True,
@@ -64,7 +64,7 @@ if __name__ == '__main__':
   test_boundary=1339
   index = electricity['days_from_start']
   train = electricity.loc[(index >= 1100) & (index < test_boundary)]
-  test = electricity.loc[(index >= test_boundary)]
+  test = electricity.loc[(index >= test_boundary -1)]
 
 
   # specify input variables
@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
   predictions = np_model.predict(test)
   
-  print("Saving predictions to file: np_predictions_2.csv")
+  print("Saving predictions to file: np_preds_real.csv")
   
   predictions.to_csv(CONFIG_DICT["models"]["electricity"] / "neuralprophet" / "np_preds_real.csv")
 

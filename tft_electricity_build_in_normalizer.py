@@ -166,11 +166,10 @@ if __name__ == '__main__':
   # safe model for later use
   torch.save(tft.state_dict(), CONFIG_DICT["models"]["electricity"] / "tft_auto_norm" / "tft_model_build_in_normalizer")
 
-  print("trainging done. Evaluating...")
+  
+  #output = trainer.test(model=tft, dataloaders=test_dataloader , ckpt_path="best")
 
-  output = trainer.test(model=tft, dataloaders=test_dataloader , ckpt_path="best")
+  #with open(CONFIG_DICT["models"]["electricity"] /  "tft_auto_norm" / "tuning_logs" / "tft_electricity_test_output_build_in_normalizer.pkl", "wb") as fout:
+  #    pickle.dump(output, fout)
 
-  with open(CONFIG_DICT["models"]["electricity"] /  "tft_auto_norm" / "tuning_logs" / "tft_electricity_test_output_build_in_normalizer.pkl", "wb") as fout:
-      pickle.dump(output, fout)
-
-  print("Done.")
+  print("Done. Use the notebook for loading and evaluating the model.")

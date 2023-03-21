@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 mkdir data
 mkdir data/electricity
 
@@ -9,7 +9,10 @@ rm temp.zip
 cd ..
 cd ..
 
+conda update -n base -c defaults conda
 conda create -n yourenvname python=3.8 anaconda
+
 source activate yourenvname
+
 conda install pip
 pip3 install -r requirements.txt
