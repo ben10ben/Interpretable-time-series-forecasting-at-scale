@@ -22,6 +22,8 @@ our best performing NeuralProphet and TemporalFusionTransformer models alongside
 Run `bash setup.sh` to:  
   -download the needed dataset  
   -setup a conda enviroment  
+  
+ We cannot guarantee, that virtualenviroment setup works on every machnine, if the setup fails, use the `requirement.txt` so setup the enviroment.
 
   
   
