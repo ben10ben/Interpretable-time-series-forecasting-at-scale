@@ -3,7 +3,7 @@ by Alican Gündogdu, Benedikt Rein and Yuliya Vandysheva
 
 Humboldt-University of Berlin  
 Chair of Information Systems  
-Course: Information Systems  
+Seminar: Information Systems  
 Professor: Stephan Lessmann  
 
 The main goal of this research is to reproduce results shown in the paper
