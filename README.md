@@ -9,7 +9,7 @@ Professor: Stephan Lessmann
 The main goal of this research is to reproduce results shown in the paper
 [Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf).
 
-This repository provides code for replicating the experiments described in our paper. 
+This repository provides code for replicating the experiments described in the paper. 
 
 
 It was developed on Linux but should also run on other machines with minor changes.
@@ -23,11 +23,11 @@ Run `bash setup.sh` to:
   -download the needed dataset  
   -setup a conda enviroment  
   
- We cannot guarantee, that virtualenviroment setup works on every machnine, if the setup fails, use the `requirement.txt` so setup the enviroment.
+ We cannot guarantee, that virtual enviroment setup works on every machnine, if you prefer venv or the setup fails, use the `requirement.txt` so setup the enviroment.
 
   
   
-With an activated virtual enviroment run:
+With an activated virtual enviroment and `requirements.txt` installed run:
 
 `python3 tft_electricity_hypertuning.py` to selecting optimal hyperparameters  
 
