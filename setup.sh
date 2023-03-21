@@ -1,4 +1,6 @@
 #!/bin/bash
+mkdir data
+mkdir data/electricity
 
 cd data/electricity
 wget "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip" -O temp.zip
