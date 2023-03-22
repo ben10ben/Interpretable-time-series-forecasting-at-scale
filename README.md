@@ -1,10 +1,10 @@
 # Evaluation of selected DL algorithmic methods for interpretable time series forecasting
 by Alican Gündogdu, Benedikt Rein and Yuliya Vandysheva
 
-Humboldt-University of Berlin 
-Chair of Information Systems 
-Course: Information Systems 
-Professor: Stephan Lessmann 
+Humboldt-University of Berlin  
+Chair of Information Systems  
+Course: Information Systems  
+Professor: Stephan Lessmann  
 
 The main goal of this research is to reproduce results shown in the paper
 [Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf).
@@ -37,9 +37,9 @@ With an activated virtual enviroment and `requirements.txt` installed run:
 
 `python3 neuralprophet_electricity_build_in_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
 
-`python3 neuralprophet_electricity_google_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
+`python3 neuralprophet_electricity_google_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and copied normalization from the TFT paper
 
-`python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.  
+`python3 arima_electricity.py` to create an ARIMA model for every local timeseries with copied normalization from the TFT paper and safe the predictions to a csv, models are not saved.  
 
 
 [Download the electricity dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip).
