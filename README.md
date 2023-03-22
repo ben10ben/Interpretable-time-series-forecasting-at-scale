@@ -37,9 +37,9 @@ With an activated virtual enviroment and `requirements.txt` installed run:
 
 `python3 neuralprophet_electricity_build_in_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
 
-`python3 neuralprophet_electricity_google_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and let the NeuralProphet module take care of normalization  
+`python3 neuralprophet_electricity_google_normalizer.py` to run our NeuralProphet implementation without hyperparameter tuning and copied normalization from the TFT paper
 
-`python3 arima_electricity.py` to create an ARIMA model for every local timeseries and safe the predictions to a csv, models are not saved.  
+`python3 arima_electricity.py` to create an ARIMA model for every local timeseries with copied normalization from the TFT paper and safe the predictions to a csv, models are not saved.  
 
 
 [Download the electricity dataset](https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip).
