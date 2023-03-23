@@ -9,7 +9,8 @@ Professor: Stephan Lessmann
 The main goal of this research is to reproduce results shown in the paper
 [Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf).
 
-This repository provides code for replicating the experiments described in the paper. 
+This repository provides code for replicating the experiments described in the paper, which you can find under:
+Interpretable_timeseries_forecasting_Information_Science_Seminar.pdf
 
 
 It was developed on Linux but should also run on other machines with minor changes.
