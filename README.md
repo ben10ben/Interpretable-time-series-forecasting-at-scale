@@ -15,7 +15,7 @@ Interpretable_timeseries_forecasting_Information_Science_Seminar.pdf
 
 It was developed on Linux but should also run on other machines with minor changes.
 
-Read the Electricity_EDA_Eval.ipynp alongside the paper.
+Read the Notebook_interpretable_timeseries_forecasting.ipynp alongside the paper.
 In the notebook you can find some exploratory analysis of the electricity dataset and we present 
 our best performing NeuralProphet and TemporalFusionTransformer models alongside our baseline.
 
