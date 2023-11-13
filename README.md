@@ -1,4 +1,4 @@
-# Evaluation of selected DL algorithmic methods for interpretable time series forecasting
+   # Evaluation of selected DL algorithmic methods for interpretable time series forecasting
 
 ## Overview
 The primary objective of this research is to explore and reproduce results demonstrated in the article[Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting](https://arxiv.org/pdf/1912.09363.pdf). The study critically evaluates three different algorithmic methods—ARIMA, Temporal Fusion Transformer (TFT), and NeuralProphet—on the same dataset. The experiments successfully replicate previous findings and demonstrate comparable performance, contributing to the understanding of time series forecasting with an emphasis on interpretability.
@@ -53,7 +53,7 @@ With an activated virtual enviroment and `requirements.txt` installed run:
 
 
 ## Contributing
-We encourage contributions to this repository, especially in the areas of improving model interpretability and efficiency. Please adhere to the repository's contribution guidelines when proposing changes or enhancements.
+We encourage contributions to this repository, especially in the areas of improving model interpretability and efficiency.
 
 ## Acknowledgements
 Special thanks to Humboldt University Berlin and the Chair of Information Systems for the support and resources provided for this study. We also extend our gratitude to all the researchers and practitioners whose insights have shaped this field.
